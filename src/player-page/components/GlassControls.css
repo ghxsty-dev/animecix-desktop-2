@@ -107,8 +107,8 @@
 }
 
 .glass-btn .vds-icon {
-  width: 24px;
-  height: 24px;
+  width: 28px;
+  height: 28px;
 }
 
 /* ── Button row ──────────────────────────────────────────────── */
@@ -246,10 +246,8 @@
   transition: height 0.15s ease;
 }
 
-.glass-time-slider:hover .glass-slider-track,
-.glass-time-slider[data-dragging] .glass-slider-track {
-  --glass-track-h: 7px;
-}
+/* Track height stays fixed — growing on hover would change the bar's
+   footprint every time the pointer passes over it. Only the thumb fades in. */
 
 .glass-slider-fill {
   position: absolute;
@@ -258,7 +256,6 @@
   bottom: 0;
   width: var(--slider-fill, 0%);
   background: #1a9fff;
-  box-shadow: 0 0 10px rgba(26, 159, 255, 0.8);
   will-change: width;
 }
 
@@ -358,21 +355,29 @@
   display: inline-flex;
 }
 
-/* Panel: same flat blur as the buttons — translucent dark, no gradients. */
+/* Panel: identical blur/transparency recipe to the pills. Pinned to the
+   player's right edge (same offset as the button row) instead of floating
+   next to the gear — the placement engine positions it inside .glass-controls
+   (inset: 0), so a right offset aligns it with the pill above the bar. */
 .glass-menu-items[data-root] {
   min-width: 300px;
   max-height: min(60vh, 420px);
   overflow-y: auto;
   padding: 8px;
   border-radius: 16px;
-  border: 1px solid rgba(255, 255, 255, 0.14);
+  border: 1px solid rgba(255, 255, 255, 0.1);
   color: #fff;
-  background-color: rgba(12, 14, 18, 0.78);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6);
+  background-color: rgba(8, 10, 14, 0.62);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
   font-family: Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   animation: animecix-menu-enter 0.24s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.glass-settings .glass-menu-items[data-root][data-placement] {
+  left: auto !important;
+  right: clamp(14px, 2.5vw, 28px) !important;
 }
 
 /* Vidstack animates the panel height on open (submenu swaps stretch through
@@ -624,8 +629,8 @@
 }
 
 .glass-pill .ve-toggle-btn .vds-icon {
-  width: 24px;
-  height: 24px;
+  width: 28px;
+  height: 28px;
 }
 
 .glass-pill .ve-toggle-btn.active {
