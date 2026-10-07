@@ -46,8 +46,8 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 44px;
-  height: 44px;
+  width: 48px;
+  height: 48px;
   flex: 0 0 auto;
   border-radius: 999px;
   border: 1px solid rgba(255, 255, 255, 0.14);
@@ -74,8 +74,8 @@
 }
 
 .glass-btn .vds-icon {
-  width: 20px;
-  height: 20px;
+  width: 24px;
+  height: 24px;
 }
 
 /* ── Button row ──────────────────────────────────────────────── */
@@ -108,7 +108,7 @@
 }
 
 .glass-live-spacer {
-  height: 44px;
+  height: 48px;
 }
 
 /* ── Volume hover popup ──────────────────────────────────────── */
@@ -574,8 +574,8 @@
 }
 
 .glass-enhancement .ve-toggle-btn {
-  width: 44px;
-  height: 44px;
+  width: 48px;
+  height: 48px;
   border-radius: 999px;
   border: 1px solid rgba(255, 255, 255, 0.14);
   color: #fff;
@@ -595,8 +595,8 @@
 }
 
 .glass-enhancement .ve-toggle-btn .vds-icon {
-  width: 20px;
-  height: 20px;
+  width: 24px;
+  height: 24px;
 }
 
 .glass-enhancement .ve-toggle-btn.active {
@@ -678,8 +678,8 @@
 @media (max-width: 640px) {
   .glass-btn,
   .glass-enhancement .ve-toggle-btn {
-    width: 40px;
-    height: 40px;
+    width: 44px;
+    height: 44px;
   }
 
   .glass-time {
