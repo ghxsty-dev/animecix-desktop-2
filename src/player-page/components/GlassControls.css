@@ -10,13 +10,13 @@
   z-index: 20;
   display: flex;
   flex-direction: column;
-  gap: 10px;
-  padding: 0 clamp(14px, 2.5vw, 28px) clamp(12px, 2vh, 20px);
+  gap: 12px;
+  padding: 0 0 clamp(10px, 1.8vh, 18px);
   /* Gentle scrim confined to the bar area so the art stays visible. */
   background: linear-gradient(
     to top,
-    rgba(0, 0, 0, 0.62) 0%,
-    rgba(0, 0, 0, 0.28) 55%,
+    rgba(0, 0, 0, 0.55) 0%,
+    rgba(0, 0, 0, 0.22) 55%,
     transparent 100%
   );
   opacity: 0;
@@ -38,9 +38,32 @@
   }
 }
 
+/* ── Pill groups ───────────────────────────────────────────────
+   Dark translucent pills holding flat icon buttons (Figma: one pill for
+   play+mute, one for the clock, one for settings+PiP+enhance+fullscreen).
+   Icons inside pills are transparent — the pill itself is the surface. */
+
+.glass-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  padding: 6px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  background-color: rgba(8, 10, 14, 0.62);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+}
+
+.glass-time-pill {
+  padding: 6px 18px;
+  min-height: 48px;
+}
+
 /* ── Flat blur circle buttons ──────────────────────────────────
-   No gradients, no glow: translucent dark fill + backdrop blur so the
-   video shows through evenly. All buttons and icons share one size. */
+   Standalone look (kept for menu triggers); inside pills they go
+   fully flat and share one icon size. */
 
 .glass-btn {
   display: inline-flex;
@@ -58,6 +81,16 @@
   -webkit-backdrop-filter: blur(14px);
   box-shadow: 0 6px 20px rgba(0, 0, 0, 0.35);
   transition: background-color 0.15s ease, transform 0.15s ease;
+}
+
+.glass-pill .glass-btn {
+  width: 40px;
+  height: 40px;
+  border: none;
+  background: transparent;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+  box-shadow: none;
 }
 
 .glass-btn:hover {
@@ -84,6 +117,7 @@
   display: flex;
   align-items: center;
   gap: 10px;
+  padding-inline: clamp(14px, 2.5vw, 28px);
 }
 
 .glass-spacer {
@@ -188,10 +222,10 @@
   will-change: bottom;
 }
 
-/* ── Seek slider ─────────────────────────────────────────────── */
+/* ── Seek slider (full-bleed Figma bar) ───────────────────────── */
 
 .glass-time-slider {
-  --glass-track-h: 5px;
+  --glass-track-h: 6px;
   position: relative;
   display: block;
   width: 100%;
@@ -206,11 +240,9 @@
   display: block;
   width: 100%;
   height: var(--glass-track-h);
-  border-radius: 999px;
+  border-radius: 0;
   background: rgba(255, 255, 255, 0.24);
-  box-shadow:
-    inset 0 1px 2px rgba(0, 0, 0, 0.45),
-    0 1px 2px rgba(0, 0, 0, 0.3);
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.45);
   transition: height 0.15s ease;
 }
 
@@ -225,8 +257,8 @@
   left: 0;
   bottom: 0;
   width: var(--slider-fill, 0%);
-  background: linear-gradient(90deg, #0074e4, #38a1ff);
-  box-shadow: 0 0 10px rgba(0, 116, 228, 0.8);
+  background: #1a9fff;
+  box-shadow: 0 0 10px rgba(26, 159, 255, 0.8);
   will-change: width;
 }
 
@@ -563,45 +595,41 @@
   cursor: pointer;
 }
 
-/* ── Enhancement toggle joins the glass row ──────────────────── */
+/* ── Enhancement toggle joins the right pill (flat like the rest) ─ */
 
-.glass-enhancement {
+.glass-pill .ve-menu {
   display: inline-flex;
 }
 
-.glass-enhancement .ve-menu {
+.glass-pill .ve-toggle-btn {
   display: inline-flex;
-}
-
-.glass-enhancement .ve-toggle-btn {
-  width: 48px;
-  height: 48px;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
   border-radius: 999px;
-  border: 1px solid rgba(255, 255, 255, 0.14);
+  border: none;
   color: #fff;
-  background-color: rgba(10, 12, 16, 0.45);
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.35);
+  background: transparent;
+  cursor: pointer;
   transition: background-color 0.15s ease, transform 0.15s ease;
 }
 
-.glass-enhancement .ve-toggle-btn:hover {
+.glass-pill .ve-toggle-btn:hover {
   background-color: rgba(255, 255, 255, 0.16);
 }
 
-.glass-enhancement .ve-toggle-btn:active {
+.glass-pill .ve-toggle-btn:active {
   transform: scale(0.94);
 }
 
-.glass-enhancement .ve-toggle-btn .vds-icon {
+.glass-pill .ve-toggle-btn .vds-icon {
   width: 24px;
   height: 24px;
 }
 
-.glass-enhancement .ve-toggle-btn.active {
-  background-color: rgba(0, 116, 228, 0.55);
-  border-color: rgba(255, 255, 255, 0.25);
+.glass-pill .ve-toggle-btn.active {
+  color: #4aa3ff;
 }
 
 /* ── Buffering spinner ───────────────────────────────────────── */
@@ -664,12 +692,11 @@
   inset: 0;
 }
 
-/* ── Live mode: no seek, no play button, no clock ─────────────── */
+/* ── Live mode: play/volume/clock pills and seekbar are hidden ─── */
 
 .live-mode .glass-time-slider,
-.live-mode .glass-volume,
-.live-mode .glass-btn-play,
-.live-mode .glass-time {
+.live-mode .glass-play-pill,
+.live-mode .glass-time-pill {
   display: none !important;
 }
 
@@ -677,12 +704,18 @@
 
 @media (max-width: 640px) {
   .glass-btn,
-  .glass-enhancement .ve-toggle-btn {
-    width: 44px;
-    height: 44px;
+  .glass-pill .ve-toggle-btn {
+    width: 36px;
+    height: 36px;
   }
 
-  .glass-time {
+  .glass-btn .vds-icon,
+  .glass-pill .ve-toggle-btn .vds-icon {
+    width: 20px;
+    height: 20px;
+  }
+
+  .glass-time-pill {
     display: none;
   }
 

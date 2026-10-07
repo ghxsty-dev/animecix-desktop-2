@@ -7,6 +7,7 @@ import {
   MediaAnnouncer,
   Menu,
   MuteButton,
+  PIPButton,
   PlayButton,
   Spinner,
   Time,
@@ -21,6 +22,7 @@ import {
   FullscreenIcon,
   MuteIcon,
   PauseIcon,
+  PictureInPictureExitIcon,
   PictureInPictureIcon,
   PlayIcon,
   ReplayIcon,
@@ -55,45 +57,9 @@ interface GlassControlsProps {
   };
 }
 
-/** PiP toggle row inside the settings menu (replaces the old bar button). */
-function PipMenuRow() {
-  const { remote } = useMediaContext();
-  const canPiP = useMediaState('canPictureInPicture');
-  const pip = useMediaState('pictureInPicture');
-
-  if (!canPiP) return null;
-
-  const label = t('PiP');
-  const toggle = () => {
-    if (pip) remote.exitPictureInPicture();
-    else remote.requestPictureInPicture();
-  };
-
-  return (
-    <div className="vds-menu-item" role="menuitemcheckbox" aria-checked={pip} onClick={toggle}>
-      <PictureInPictureIcon className="vds-menu-item-icon vds-icon" />
-      <div className="vds-menu-item-label">{label}</div>
-      <button
-        className={`glass-switch${pip ? ' on' : ''}`}
-        role="switch"
-        aria-checked={pip}
-        aria-label={label}
-        tabIndex={-1}
-        onClick={(e) => {
-          e.stopPropagation();
-          toggle();
-        }}
-      >
-        <span className="glass-switch-thumb" />
-      </button>
-    </div>
-  );
-}
-
 /**
- * Settings (gear) glass button + dropdown panel. Content mirrors the old
- * DefaultVideoLayout settings menu: flat toggles, Kalite, Hız, Altyazılar,
- * Altyazı Tarzları — plus PiP, which lost its bar button in the redesign.
+ * Settings (gear) pill button + dropdown panel: flat toggles, Kalite, Hız,
+ * Altyazılar, Altyazı Tarzları.
  */
 function SettingsMenu({
   announcements,
@@ -113,9 +79,24 @@ function SettingsMenu({
         <SpeedMenu />
         <CaptionsMenu />
         <CaptionStylesMenu />
-        <PipMenuRow />
       </Menu.Items>
     </Menu.Root>
+  );
+}
+
+/** PiP pill button (design puts it in the right pill, next to settings). */
+function GlassPipButton() {
+  const canPiP = useMediaState('canPictureInPicture');
+  const pip = useMediaState('pictureInPicture');
+  if (!canPiP) return null;
+  return (
+    <PIPButton className="glass-btn" aria-label={pip ? t('Exit PiP') : t('Enter PiP')}>
+      {pip ? (
+        <PictureInPictureExitIcon className="vds-icon" />
+      ) : (
+        <PictureInPictureIcon className="vds-icon" />
+      )}
+    </PIPButton>
   );
 }
 
@@ -236,6 +217,56 @@ export function GlassControls({ thumbnails, announcements, onAnnouncementsChange
       {announcements && <MediaAnnouncer translations={turkishTranslations} />}
 
       <Controls.Root className="glass-controls">
+        <Controls.Group className="glass-button-row">
+          {!live && (
+            <div className="glass-pill glass-play-pill" role="group" aria-label="Oynatma">
+              <GlassPlayButton />
+
+              <div className="glass-volume">
+                <GlassMuteButton />
+                <div className="glass-volume-popup">
+                  <VolumeSlider.Root className="glass-volume-slider" orientation="vertical" aria-label={t('Volume')}>
+                    <VolumeSlider.Track className="glass-mini-track">
+                      <VolumeSlider.TrackFill className="glass-mini-fill glass-mini-track" />
+                    </VolumeSlider.Track>
+                    <VolumeSlider.Thumb className="glass-mini-thumb" />
+                  </VolumeSlider.Root>
+                </div>
+              </div>
+            </div>
+          )}
+
+          {!live && (
+            <div className="glass-pill glass-time-pill">
+              <div className="glass-time">
+                <Time className="glass-time-current" type="current" />
+                <span className="glass-time-divider">/</span>
+                <Time className="glass-time-duration" type="duration" />
+              </div>
+            </div>
+          )}
+
+          {live && <div className="glass-live-spacer" />}
+
+          <div className="glass-spacer" />
+
+          <div className="glass-pill" role="group" aria-label={t('Settings')}>
+            <SettingsMenu announcements={announcements} onAnnouncementsChange={onAnnouncementsChange} />
+            <GlassPipButton />
+            <EnhancementPanel
+              preset={enhancement.preset}
+              onPresetChange={enhancement.onPresetChange}
+              filters={enhancement.filters}
+              onFiltersChange={enhancement.onFiltersChange}
+              stats={enhancement.stats}
+              isActive={enhancement.isActive}
+              panelOpen={enhancement.panelOpen}
+              onPanelToggle={enhancement.onPanelToggle}
+            />
+            <GlassFullscreenButton />
+          </div>
+        </Controls.Group>
+
         {!live && (
           <TimeSlider.Root className="glass-time-slider" aria-label={t('Seek')}>
             <TimeSlider.Track className="glass-slider-track">
@@ -254,53 +285,6 @@ export function GlassControls({ thumbnails, announcements, onAnnouncementsChange
             </TimeSlider.Preview>
           </TimeSlider.Root>
         )}
-
-        <Controls.Group className="glass-button-row">
-          {!live && <GlassPlayButton />}
-
-          {!live && (
-            <div className="glass-volume">
-              <GlassMuteButton />
-              <div className="glass-volume-popup" aria-hidden={false}>
-                <VolumeSlider.Root className="glass-volume-slider" orientation="vertical" aria-label={t('Volume')}>
-                  <VolumeSlider.Track className="glass-mini-track">
-                    <VolumeSlider.TrackFill className="glass-mini-fill glass-mini-track" />
-                  </VolumeSlider.Track>
-                  <VolumeSlider.Thumb className="glass-mini-thumb" />
-                </VolumeSlider.Root>
-              </div>
-            </div>
-          )}
-
-          {!live && (
-            <div className="glass-time">
-              <Time className="glass-time-current" type="current" />
-              <span className="glass-time-divider">/</span>
-              <Time className="glass-time-duration" type="duration" />
-            </div>
-          )}
-
-          {live && <div className="glass-live-spacer" />}
-
-          <div className="glass-spacer" />
-
-          <div className="glass-enhancement">
-            <EnhancementPanel
-              preset={enhancement.preset}
-              onPresetChange={enhancement.onPresetChange}
-              filters={enhancement.filters}
-              onFiltersChange={enhancement.onFiltersChange}
-              stats={enhancement.stats}
-              isActive={enhancement.isActive}
-              panelOpen={enhancement.panelOpen}
-              onPanelToggle={enhancement.onPanelToggle}
-            />
-          </div>
-
-          <SettingsMenu announcements={announcements} onAnnouncementsChange={onAnnouncementsChange} />
-
-          <GlassFullscreenButton />
-        </Controls.Group>
       </Controls.Root>
     </>
   );
