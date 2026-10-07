@@ -1,10 +1,6 @@
 import { Menu, useMediaContext, useMediaState } from '@vidstack/react';
 import { ComputerIcon } from '@vidstack/react/icons';
-import {
-  DefaultMenuButton,
-  DefaultMenuRadioGroup,
-  useDefaultLayoutWord,
-} from '@vidstack/react/player/layouts/default';
+import { SettingsRadioGroup, SettingsRowButton, t } from './GlassMenu';
 
 interface QualityLike {
   height?: number;
@@ -71,8 +67,8 @@ export function QualityMenu() {
   const qualities = useMediaState('qualities');
   const quality = useMediaState('quality');
   const autoQuality = useMediaState('autoQuality');
-  const qualityWord = useDefaultLayoutWord('Quality');
-  const autoWord = useDefaultLayoutWord('Auto');
+  const qualityWord = t('Quality');
+  const autoWord = t('Auto');
 
   // If the source has no selectable qualities or quality switching is not
   // supported, hide the entire submenu ("kapalı görünsün").
@@ -97,9 +93,9 @@ export function QualityMenu() {
 
   return (
     <Menu.Root className="vds-menu">
-      <DefaultMenuButton label={qualityWord} hint={currentLabel} Icon={ComputerIcon} />
-      <Menu.Items className="vds-menu-items vds-quick-submenu">
-        <DefaultMenuRadioGroup value={currentValue} options={options} onChange={onSelect} />
+      <SettingsRowButton label={qualityWord} hint={currentLabel} Icon={ComputerIcon} />
+      <Menu.Items className="vds-menu-items glass-menu-items vds-quick-submenu">
+        <SettingsRadioGroup value={currentValue} options={options} onChange={onSelect} />
       </Menu.Items>
     </Menu.Root>
   );

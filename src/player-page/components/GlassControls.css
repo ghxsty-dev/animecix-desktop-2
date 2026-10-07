@@ -1,0 +1,692 @@
+/* ── AnimeciX player controls ───────────────────────────────────
+   Custom bottom bar: uniform flat-blur circle buttons floating above a
+   full-width seek slider. No DefaultVideoLayout skin is loaded
+   (main.tsx only pulls vidstack base.css); everything below is ours.
+------------------------------------------------------------------ */
+
+.glass-controls {
+  position: absolute;
+  inset: auto 0 0 0;
+  z-index: 20;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 0 clamp(14px, 2.5vw, 28px) clamp(12px, 2vh, 20px);
+  /* Gentle scrim confined to the bar area so the art stays visible. */
+  background: linear-gradient(
+    to top,
+    rgba(0, 0, 0, 0.62) 0%,
+    rgba(0, 0, 0, 0.28) 55%,
+    transparent 100%
+  );
+  opacity: 0;
+  transform: translateY(8px);
+  transition: opacity 0.28s ease, transform 0.28s ease;
+  pointer-events: none;
+  font-family: Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
+
+[data-controls] .glass-controls {
+  opacity: 1;
+  transform: translateY(0);
+  pointer-events: auto;
+}
+
+@media (prefers-reduced-motion) {
+  .glass-controls {
+    transition: none;
+  }
+}
+
+/* ── Flat blur circle buttons ──────────────────────────────────
+   No gradients, no glow: translucent dark fill + backdrop blur so the
+   video shows through evenly. All buttons and icons share one size. */
+
+.glass-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  flex: 0 0 auto;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  color: #fff;
+  cursor: pointer;
+  background-color: rgba(10, 12, 16, 0.45);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.35);
+  transition: background-color 0.15s ease, transform 0.15s ease;
+}
+
+.glass-btn:hover {
+  background-color: rgba(255, 255, 255, 0.16);
+}
+
+.glass-btn:active {
+  transform: scale(0.94);
+}
+
+.glass-btn:focus-visible {
+  outline: 2px solid rgba(0, 116, 228, 0.8);
+  outline-offset: 2px;
+}
+
+.glass-btn .vds-icon {
+  width: 20px;
+  height: 20px;
+}
+
+/* ── Button row ──────────────────────────────────────────────── */
+
+.glass-button-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.glass-spacer {
+  flex: 1;
+}
+
+.glass-time {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  color: rgba(255, 255, 255, 0.92);
+  font-size: 13px;
+  font-weight: 550;
+  font-variant-numeric: tabular-nums;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.7);
+  padding-inline: 4px;
+  user-select: none;
+}
+
+.glass-time-divider {
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.glass-live-spacer {
+  height: 44px;
+}
+
+/* ── Volume hover popup ──────────────────────────────────────── */
+
+.glass-volume {
+  position: relative;
+  display: inline-flex;
+}
+
+.glass-volume-popup {
+  position: absolute;
+  bottom: calc(100% + 10px);
+  left: 50%;
+  transform: translateX(-50%) translateY(6px);
+  padding: 12px 10px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background-color: rgba(10, 12, 16, 0.55);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.5);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.18s ease, transform 0.18s ease;
+}
+
+.glass-volume:hover .glass-volume-popup,
+.glass-volume:focus-within .glass-volume-popup {
+  opacity: 1;
+  transform: translateX(-50%) translateY(0);
+  pointer-events: auto;
+}
+
+.glass-volume-slider {
+  --glass-mini-h: 96px;
+  display: block;
+  height: var(--glass-mini-h);
+  width: 24px;
+  cursor: pointer;
+  touch-action: none;
+}
+
+.glass-mini-track {
+  position: relative;
+  display: block;
+  width: 6px;
+  height: 100%;
+  margin: 0 auto;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.22);
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.4);
+}
+
+.glass-mini-fill {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: var(--slider-fill, 0%);
+  background: linear-gradient(to top, #0074e4, #4aa3ff);
+  box-shadow: 0 0 8px rgba(0, 116, 228, 0.7);
+  will-change: height;
+}
+
+.glass-mini-thumb {
+  position: absolute;
+  left: 50%;
+  bottom: var(--slider-fill, 0%);
+  width: 14px;
+  height: 14px;
+  border-radius: 999px;
+  background: #fff;
+  border: none;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.5);
+  transform: translate(-50%, 50%);
+  pointer-events: none;
+  will-change: bottom;
+}
+
+/* ── Seek slider ─────────────────────────────────────────────── */
+
+.glass-time-slider {
+  --glass-track-h: 5px;
+  position: relative;
+  display: block;
+  width: 100%;
+  height: calc(var(--glass-track-h) + 14px);
+  padding-block: 7px;
+  cursor: pointer;
+  touch-action: none;
+}
+
+.glass-slider-track {
+  position: relative;
+  display: block;
+  width: 100%;
+  height: var(--glass-track-h);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.24);
+  box-shadow:
+    inset 0 1px 2px rgba(0, 0, 0, 0.45),
+    0 1px 2px rgba(0, 0, 0, 0.3);
+  transition: height 0.15s ease;
+}
+
+.glass-time-slider:hover .glass-slider-track,
+.glass-time-slider[data-dragging] .glass-slider-track {
+  --glass-track-h: 7px;
+}
+
+.glass-slider-fill {
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  width: var(--slider-fill, 0%);
+  background: linear-gradient(90deg, #0074e4, #38a1ff);
+  box-shadow: 0 0 10px rgba(0, 116, 228, 0.8);
+  will-change: width;
+}
+
+.glass-slider-progress {
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  width: var(--slider-progress, 0%);
+  background: rgba(255, 255, 255, 0.28);
+  will-change: width;
+}
+
+.glass-slider-thumb {
+  position: absolute;
+  top: 50%;
+  left: var(--slider-fill, 0%);
+  width: 15px;
+  height: 15px;
+  border-radius: 999px;
+  background: #fff;
+  border: none;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.55);
+  transform: translate(-50%, -50%) scale(0.6);
+  opacity: 0;
+  transition: opacity 0.15s ease, transform 0.15s ease;
+  pointer-events: none;
+  will-change: left;
+}
+
+.glass-time-slider:hover .glass-slider-thumb,
+.glass-time-slider[data-dragging] .glass-slider-thumb,
+.glass-time-slider[data-active] .glass-slider-thumb,
+.glass-time-slider:focus-visible .glass-slider-thumb {
+  opacity: 1;
+  transform: translate(-50%, -50%) scale(1);
+}
+
+.glass-slider-preview {
+  position: absolute;
+  bottom: calc(100% + 12px);
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 8px;
+  border-radius: 14px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  background-color: rgba(10, 12, 16, 0.72);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+  box-shadow: 0 14px 36px rgba(0, 0, 0, 0.55);
+  pointer-events: none;
+  /* Vidstack sets data-visible while hovering/dragging the slider. */
+  opacity: 0;
+  transition: opacity 0.18s ease;
+}
+
+.glass-slider-preview[data-visible] {
+  opacity: 1;
+}
+
+.glass-slider-thumbnail {
+  display: block;
+  overflow: hidden;
+  border-radius: 8px;
+}
+
+.glass-slider-thumbnail img {
+  display: block;
+  width: 160px;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+}
+
+.glass-slider-chapter {
+  color: rgba(255, 255, 255, 0.75);
+  font-size: 11px;
+  max-width: 160px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.glass-slider-value {
+  color: #fff;
+  font-size: 12px;
+  font-weight: 650;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ── Settings menu panel ─────────────────────────────────────── */
+
+.glass-settings {
+  position: relative;
+  display: inline-flex;
+}
+
+/* Panel: same flat blur as the buttons — translucent dark, no gradients. */
+.glass-menu-items[data-root] {
+  min-width: 300px;
+  max-height: min(60vh, 420px);
+  overflow-y: auto;
+  padding: 8px;
+  border-radius: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  color: #fff;
+  background-color: rgba(12, 14, 18, 0.78);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6);
+  font-family: Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  animation: animecix-menu-enter 0.24s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+/* Vidstack animates the panel height on open (submenu swaps stretch through
+   intermediate heights). Snap instead — the enter animation above covers it. */
+.glass-menu-items[data-root] {
+  height: auto;
+  transition: none;
+}
+
+/* Submenu panels (Hız / Kalite / Altyazılar / Altyazı Tarzları) overlay the
+   root panel — they need their own opaque-ish background, otherwise the
+   root rows show through behind the options. */
+.glass-menu-items[data-submenu] {
+  background-color: rgba(12, 14, 18, 0.94);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-radius: 12px;
+}
+
+/* Pin root panel height while a submenu is open (same contract the old
+   .vds-settings-menu-items rules provided — see EmbedPlayer.css). */
+.glass-menu-items[data-root]:has(.vds-quick-submenu[data-open]) {
+  height: var(--animecix-settings-height, 284px) !important;
+  overflow-x: hidden !important;
+}
+
+.glass-menu-items[data-root]:has(.vds-font-style-items[data-open]) {
+  height: 360px !important;
+}
+
+@media (prefers-reduced-motion) {
+  .glass-menu-items[data-root] {
+    animation: none;
+  }
+}
+
+/* Menu rows (shared by settings root + submenus). */
+.glass-menu-items .vds-menu-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 38px;
+  padding: 6px 10px;
+  border-radius: 10px;
+  font-size: 13.5px;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.92);
+  cursor: pointer;
+  border: none;
+  background: transparent;
+  width: 100%;
+  text-align: left;
+  font-family: inherit;
+}
+
+.glass-menu-items .vds-menu-item:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.glass-menu-items .vds-menu-item-icon {
+  width: 20px;
+  height: 20px;
+  flex: 0 0 auto;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.glass-menu-items .vds-menu-item-label {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.glass-menu-items .vds-menu-item-hint {
+  color: rgba(255, 255, 255, 0.55);
+  font-size: 12.5px;
+  font-weight: 550;
+}
+
+/* Radio rows: check appears only on the selected option. */
+.glass-menu-items .vds-radio {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 36px;
+  padding: 6px 10px;
+  border-radius: 10px;
+  font-size: 13.5px;
+  cursor: pointer;
+}
+
+.glass-menu-items .vds-radio:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.glass-menu-items .vds-radio .vds-icon {
+  width: 18px;
+  height: 18px;
+  color: #4aa3ff;
+  opacity: 0;
+}
+
+.glass-menu-items .vds-radio[aria-checked='true'] .vds-icon,
+.glass-menu-items .vds-radio[data-checked] .vds-icon {
+  opacity: 1;
+}
+
+.glass-menu-items .vds-radio[aria-checked='true'],
+.glass-menu-items .vds-radio[data-checked] {
+  background: rgba(0, 116, 228, 0.22);
+}
+
+/* Sections inside Altyazı Tarzları. */
+.glass-menu-items .vds-menu-section {
+  padding: 2px 0 6px;
+}
+
+.glass-menu-items .vds-menu-section + .vds-menu-section {
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  margin-top: 4px;
+  padding-top: 8px;
+}
+
+.glass-menu-items .vds-menu-section-label {
+  padding: 6px 10px 2px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.5);
+}
+
+/* Toggle switch (loop / announcements / PiP / keyboard animations). */
+.glass-switch {
+  position: relative;
+  width: 38px;
+  height: 22px;
+  flex: 0 0 auto;
+  padding: 0;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.14);
+  cursor: pointer;
+  transition: background 0.18s ease;
+}
+
+.glass-switch.on {
+  background: #0074e4;
+  border-color: rgba(255, 255, 255, 0.3);
+}
+
+.glass-switch-thumb {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 16px;
+  height: 16px;
+  border-radius: 999px;
+  background: #fff;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+  transition: transform 0.18s ease;
+}
+
+.glass-switch.on .glass-switch-thumb {
+  transform: translateX(16px);
+}
+
+/* Mini slider rows (font size / opacity). */
+.glass-menu-items .vds-slider-item {
+  flex-wrap: wrap;
+  row-gap: 2px;
+}
+
+.glass-mini-slider {
+  display: block;
+  flex: 1 1 100%;
+  height: 20px;
+  cursor: pointer;
+  touch-action: none;
+}
+
+.glass-mini-slider .vds-slider-track {
+  position: relative;
+  display: block;
+  width: 100%;
+  height: 5px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.glass-mini-slider .vds-slider-track-fill {
+  position: absolute;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #0074e4, #38a1ff);
+}
+
+.glass-mini-slider .vds-slider-thumb {
+  position: absolute;
+  top: 50%;
+  width: 13px;
+  height: 13px;
+  border-radius: 999px;
+  background: #fff;
+  border: none;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.5);
+  transform: translate(-50%, -50%);
+}
+
+/* Color picker swatch. */
+.glass-color-picker {
+  width: 34px;
+  height: 24px;
+  padding: 0;
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  border-radius: 8px;
+  background: transparent;
+  cursor: pointer;
+}
+
+/* ── Enhancement toggle joins the glass row ──────────────────── */
+
+.glass-enhancement {
+  display: inline-flex;
+}
+
+.glass-enhancement .ve-menu {
+  display: inline-flex;
+}
+
+.glass-enhancement .ve-toggle-btn {
+  width: 44px;
+  height: 44px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  color: #fff;
+  background-color: rgba(10, 12, 16, 0.45);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.35);
+  transition: background-color 0.15s ease, transform 0.15s ease;
+}
+
+.glass-enhancement .ve-toggle-btn:hover {
+  background-color: rgba(255, 255, 255, 0.16);
+}
+
+.glass-enhancement .ve-toggle-btn:active {
+  transform: scale(0.94);
+}
+
+.glass-enhancement .ve-toggle-btn .vds-icon {
+  width: 20px;
+  height: 20px;
+}
+
+.glass-enhancement .ve-toggle-btn.active {
+  background-color: rgba(0, 116, 228, 0.55);
+  border-color: rgba(255, 255, 255, 0.25);
+}
+
+/* ── Buffering spinner ───────────────────────────────────────── */
+
+.glass-spinner {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 72px;
+  height: 72px;
+  transform: translate(-50%, -50%);
+  z-index: 15;
+  pointer-events: none;
+  display: none;
+}
+
+[data-buffering] .glass-spinner,
+[data-waiting] .glass-spinner {
+  display: block;
+}
+
+.glass-spinner-track {
+  width: 100%;
+  height: 100%;
+  border-radius: 999px;
+  border: 5px solid rgba(255, 255, 255, 0.18);
+  border-top-color: #1a8fff;
+  animation: glass-spin 1s linear infinite;
+}
+
+.glass-spinner-fill {
+  display: none;
+}
+
+@keyframes glass-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* ── Native captions cue (kept readable without default skin) ─── */
+
+.vds-captions {
+  position: absolute;
+  inset: 0;
+  z-index: 10;
+  pointer-events: none;
+}
+
+/* ── Gestures layer ──────────────────────────────────────────── */
+
+.vds-gestures {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+}
+
+.vds-gesture {
+  position: absolute;
+  inset: 0;
+}
+
+/* ── Live mode: no seek, no play button, no clock ─────────────── */
+
+.live-mode .glass-time-slider,
+.live-mode .glass-volume,
+.live-mode .glass-btn-play,
+.live-mode .glass-time {
+  display: none !important;
+}
+
+/* ── Small screens ───────────────────────────────────────────── */
+
+@media (max-width: 640px) {
+  .glass-btn,
+  .glass-enhancement .ve-toggle-btn {
+    width: 40px;
+    height: 40px;
+  }
+
+  .glass-time {
+    display: none;
+  }
+
+  .glass-menu-items[data-root] {
+    min-width: min(300px, calc(100vw - 32px));
+  }
+}

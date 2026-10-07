@@ -8,23 +8,12 @@ import {
   type MediaPlayerInstance,
   type MediaProviderAdapter,
 } from '@vidstack/react';
-import {
-  DefaultVideoLayout,
-  defaultLayoutIcons,
-} from '@vidstack/react/player/layouts/default';
 
-import { turkishTranslations } from './translations';
+import { GlassControls } from './GlassControls';
+import { useAnnouncementsPref } from './playerPrefs';
 import { SkipButton } from './SkipButton';
 import { MusicInfo } from './MusicInfo';
 import { NavigationButtons } from './NavigationButtons';
-import { EnhancementPanel } from './EnhancementPanel';
-import { FlatSettingsMenu } from './FlatSettingsMenu';
-import { CaptionStylesMenu } from './CaptionStylesMenu';
-import { CaptionsMenu } from './CaptionsMenu';
-import { QualityMenu } from './QualityMenu';
-import { PLAYBACK_RATES, SpeedMenu } from './SpeedMenu';
-import { LiveBadge } from './LiveBadge';
-import { ViewerCount } from './ViewerCount';
 import { useVideoData } from '../hooks/useVideoData';
 import { useParentMessages, postToParent } from '../hooks/useParentMessages';
 import { useQualityPersistence } from '../hooks/useQualityPersistence';
@@ -92,6 +81,10 @@ export function EmbedPlayer() {
     preset, setPreset, filters, setFilters,
     isActive, hasOutput, stats, panelOpen, setPanelOpen,
   } = useVideoEnhancement(enhancementContainerRef);
+
+  // Screen-reader announcements toggle (settings menu). GlassControls mounts
+  // <MediaAnnouncer> from this — same storage key the old layout used.
+  const [announcements, setAnnouncements] = useAnnouncementsPref();
 
   // HLS carries its own seamless switching; only the MP4 ladder needs pinning.
   const qualityGuard = useQualityGuard(playerRef, { pinAuto: !data?.hls });
@@ -508,39 +501,19 @@ export function EmbedPlayer() {
           style={{ display: isActive ? 'block' : 'none' }}
         />
 
-        <DefaultVideoLayout
-          icons={defaultLayoutIcons}
-          translations={turkishTranslations}
-          // The layout defaults to "system", which puts a `light` class on the
-          // menus for viewers whose OS is in light mode. That class sets the
-          // menu text to #1a1a1a — near-black on the dark glass panel this
-          // player hardcodes, so labels all but disappear while the hints keep
-          // their own lighter colour. Our chrome is dark, so say so.
-          colorScheme="dark"
+        <GlassControls
           thumbnails={isOffline ? undefined : import.meta.env.VITE_API_BASE_URL + '/preview/' + id}
-          playbackRates={PLAYBACK_RATES}
-          slots={{
-            settingsMenuItemsStart: <FlatSettingsMenu />,
-            settingsMenuItemsEnd: (
-              <>
-                <CaptionStylesMenu />
-                <CaptionsMenu />
-                <QualityMenu />
-                <SpeedMenu />
-              </>
-            ),
-            afterSettingsMenu: (
-              <EnhancementPanel
-                preset={preset}
-                onPresetChange={setPreset}
-                filters={filters}
-                onFiltersChange={setFilters}
-                stats={stats}
-                isActive={isActive}
-                panelOpen={panelOpen}
-                onPanelToggle={() => setPanelOpen(!panelOpen)}
-              />
-            ),
+          announcements={announcements}
+          onAnnouncementsChange={setAnnouncements}
+          enhancement={{
+            preset,
+            onPresetChange: setPreset,
+            filters,
+            onFiltersChange: setFilters,
+            stats,
+            isActive,
+            panelOpen,
+            onPanelToggle: () => setPanelOpen(!panelOpen),
           }}
         />
         <SkipButton meta={meta} />

@@ -1,10 +1,6 @@
 import { Menu, useMediaContext, useMediaState } from '@vidstack/react';
 import { OdometerIcon } from '@vidstack/react/icons';
-import {
-  DefaultMenuButton,
-  useDefaultLayoutContext,
-  useDefaultLayoutWord,
-} from '@vidstack/react/player/layouts/default';
+import { SettingsRadioGroup, SettingsRowButton, t } from './GlassMenu';
 
 // The range form's fields are optional because the expansion below supplies
 // defaults for each of them.
@@ -59,34 +55,28 @@ export function formatSpeedValue(playbackRate: number, normalWord: string): stri
  */
 export function SpeedMenu() {
   const { remote } = useMediaContext();
-  const { playbackRates, icons } = useDefaultLayoutContext();
   const canSetPlaybackRate = useMediaState('canSetPlaybackRate');
   const playbackRate = useMediaState('playbackRate');
-  const speedWord = useDefaultLayoutWord('Speed');
-  const normalWord = useDefaultLayoutWord('Normal');
+  const speedWord = t('Speed');
+  const normalWord = t('Normal');
 
   if (!canSetPlaybackRate) return null;
 
-  const options = getSpeedOptions(playbackRates);
+  const options = getSpeedOptions(PLAYBACK_RATES);
   const valueLabel = formatSpeedValue(playbackRate, normalWord);
 
   return (
     <Menu.Root className="vds-menu">
-      <DefaultMenuButton label={speedWord} hint={valueLabel} Icon={OdometerIcon} />
-      <Menu.Items className="vds-menu-items vds-quick-submenu">
-        <Menu.RadioGroup className="vds-radio-group" role="radiogroup" value={String(playbackRate)}>
-          {options.map((rate) => (
-            <Menu.Radio
-              className="vds-radio"
-              value={String(rate)}
-              onSelect={() => remote.changePlaybackRate(rate)}
-              key={rate}
-            >
-              <icons.Menu.RadioCheck className="vds-icon" />
-              <span className="vds-radio-label">{formatSpeedValue(rate, normalWord)}</span>
-            </Menu.Radio>
-          ))}
-        </Menu.RadioGroup>
+      <SettingsRowButton label={speedWord} hint={valueLabel} Icon={OdometerIcon} />
+      <Menu.Items className="vds-menu-items glass-menu-items vds-quick-submenu">
+        <SettingsRadioGroup
+          value={String(playbackRate)}
+          options={options.map((rate) => ({
+            label: formatSpeedValue(rate, normalWord),
+            value: String(rate),
+          }))}
+          onChange={(value) => remote.changePlaybackRate(parseFloat(value))}
+        />
       </Menu.Items>
     </Menu.Root>
   );

@@ -1,9 +1,6 @@
 import { Menu, useCaptionOptions } from '@vidstack/react';
-import {
-  DefaultMenuButton,
-  useDefaultLayoutContext,
-  useDefaultLayoutWord,
-} from '@vidstack/react/player/layouts/default';
+import { ClosedCaptionsIcon } from '@vidstack/react/icons';
+import { SettingsRadioGroup, SettingsRowButton, t } from './GlassMenu';
 
 /**
  * CaptionsMenu -- "Altyazılar" submenu for selecting the active caption track.
@@ -13,9 +10,8 @@ import {
  * hook. Renders "Kapalı" (Off) plus one radio per available caption track.
  */
 export function CaptionsMenu() {
-  const { icons } = useDefaultLayoutContext();
-  const label = useDefaultLayoutWord('Captions');
-  const offText = useDefaultLayoutWord('Off');
+  const label = t('Captions');
+  const offText = t('Off');
   const options = useCaptionOptions({ off: offText });
   const hint = options.selectedTrack?.label ?? offText;
 
@@ -23,18 +19,15 @@ export function CaptionsMenu() {
 
   return (
     <Menu.Root className="vds-menu">
-      <DefaultMenuButton label={label} hint={hint} Icon={icons.Menu.Captions} />
-      <Menu.Items className="vds-menu-items vds-quick-submenu">
+      <SettingsRowButton label={label} hint={hint} Icon={ClosedCaptionsIcon} />
+      <Menu.Items className="vds-menu-items glass-menu-items vds-quick-submenu">
         {/* WHY RadioGroup: bare Menu.Radio children have no radioControllerContext
             ancestor, so mount throws "Cannot read properties of undefined (reading 'add')". */}
-        <Menu.RadioGroup className="vds-radio-group" role="radiogroup" value={options.selectedValue}>
-          {options.map(({ label: optionLabel, value, select }) => (
-            <Menu.Radio className="vds-radio" value={value} onSelect={select} key={value}>
-              <icons.Menu.RadioCheck className="vds-icon" />
-              <span className="vds-radio-label">{optionLabel}</span>
-            </Menu.Radio>
-          ))}
-        </Menu.RadioGroup>
+        <SettingsRadioGroup
+          value={options.selectedValue}
+          options={options.map(({ label: optionLabel, value }) => ({ label: optionLabel, value }))}
+          onChange={(value) => options.find((option) => option.value === value)?.select()}
+        />
       </Menu.Items>
     </Menu.Root>
   );
