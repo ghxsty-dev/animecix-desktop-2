@@ -41,6 +41,8 @@ export class AdBlocker {
     if (typeof process.resourcesPath === 'string') {
       candidates.push(path.join(process.resourcesPath, 'filter-lists'));
     }
+    // Dev fallback: forge runs from the repo root, where the lists live in src/.
+    candidates.push(path.join(process.cwd(), 'src', 'network', 'filter-lists'));
     this.filterData = {};
 
     for (const fileName of ['easylist.txt', 'easyprivacy.txt']) {

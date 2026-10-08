@@ -3,7 +3,6 @@ import {
   Captions,
   Controls,
   FullscreenButton,
-  Gesture,
   MediaAnnouncer,
   Menu,
   MuteButton,
@@ -220,13 +219,27 @@ function useKeyboardShortcuts() {
   }, [player]);
 }
 
-/** Click zones: single click toggles play; double-click seeks ∓10s on the
- * outer thirds and toggles fullscreen in the middle third. */
+/** Click zones on the video surface.
+ *
+ * WHY manual instead of Vidstack <Gesture event="pointerup">: hit-testing a
+ * press lands on this container div, which the Gesture trigger does not
+ * accept, so it never fires here. Toggle directly and ignore presses that
+ * start on real controls. Double-click seeks ∓10s on the outer thirds and
+ * toggles fullscreen in the middle third.
+ */
 function SeekGestures() {
   const player = useMediaPlayer();
   const { remote } = useMediaContext();
   const duration = useMediaState('duration');
   const fullscreen = useMediaState('fullscreen');
+
+  const onPointerUp = (event: React.PointerEvent<HTMLDivElement>) => {
+    const target = event.target as HTMLElement | null;
+    if (target?.closest('button, [role="slider"], input, a, .glass-menu-items, .ve-panel')) return;
+    if (!player) return;
+    if (player.state.paused) player.play().catch(() => {});
+    else player.pause();
+  };
 
   const onDoubleClick = (event: React.MouseEvent<HTMLDivElement>) => {
     if (!player) return;
@@ -244,9 +257,7 @@ function SeekGestures() {
   };
 
   return (
-    <div className="vds-gestures" onDoubleClick={onDoubleClick}>
-      <Gesture className="vds-gesture" event="pointerup" action="toggle:paused" />
-    </div>
+    <div className="vds-gestures" onPointerUp={onPointerUp} onDoubleClick={onDoubleClick} />
   );
 }
 

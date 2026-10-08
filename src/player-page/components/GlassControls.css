@@ -26,7 +26,8 @@
   font-family: Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
 }
 
-[data-controls] .glass-controls {
+[data-controls] .glass-controls,
+[data-ended] .glass-controls {
   opacity: 1;
   transform: translateY(0);
   pointer-events: auto;
@@ -443,21 +444,19 @@
   display: inline-flex;
 }
 
-/* Panel: identical blur/transparency recipe to the pills. Pinned to the
-   player's right edge (same offset as the button row) instead of floating
-   next to the gear — the placement engine positions it inside .glass-controls
-   (inset: 0), so a right offset aligns it with the pill above the bar. */
+/* Panel: the pre-redesign recipe — lighter translucent fill with
+   saturate-boosted blur, thin border, 12px radius. */
 .glass-menu-items[data-root] {
   min-width: 300px;
   max-height: min(60vh, 420px);
   overflow-y: auto;
   padding: 8px;
-  border-radius: 16px;
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.12);
   color: #fff;
-  background-color: rgba(8, 10, 14, 0.62);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
+  background-color: rgba(10, 10, 10, 0.48);
+  backdrop-filter: blur(14px) saturate(140%);
+  -webkit-backdrop-filter: blur(14px) saturate(140%);
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
   font-family: Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   animation: animecix-menu-enter 0.24s cubic-bezier(0.22, 1, 0.36, 1) both;
@@ -493,9 +492,9 @@
    root panel — they need their own opaque-ish background, otherwise the
    root rows show through behind the options. */
 .glass-menu-items[data-submenu] {
-  background-color: rgba(8, 10, 14, 0.78);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
+  background-color: rgba(10, 10, 10, 0.48);
+  backdrop-filter: blur(14px) saturate(140%);
+  -webkit-backdrop-filter: blur(14px) saturate(140%);
   border-radius: 12px;
 }
 
@@ -538,9 +537,9 @@
   display: flex;
   align-items: center;
   gap: 10px;
-  min-height: 38px;
-  padding: 6px 10px;
-  border-radius: 10px;
+  min-height: 34px;
+  padding: 5px 10px;
+  border-radius: 8px;
   font-size: 13.5px;
   font-weight: 500;
   color: rgba(255, 255, 255, 0.92);
@@ -583,7 +582,7 @@
   gap: 10px;
   min-height: 36px;
   padding: 6px 10px;
-  border-radius: 10px;
+  border-radius: 8px;
   font-size: 13.5px;
   cursor: pointer;
 }
@@ -766,17 +765,12 @@
   pointer-events: none;
 }
 
-/* ── Gestures layer ──────────────────────────────────────────── */
+/* ── Gestures layer (plain hit-test div; handlers are React) ───── */
 
 .vds-gestures {
   position: absolute;
   inset: 0;
   z-index: 0;
-}
-
-.vds-gesture {
-  position: absolute;
-  inset: 0;
 }
 
 /* ── Live mode: play/volume/clock pills and seekbar are hidden ─── */
