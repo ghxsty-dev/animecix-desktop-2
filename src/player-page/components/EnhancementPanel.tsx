@@ -1,5 +1,6 @@
 import { useEffect, useRef, type SyntheticEvent } from 'react';
 import type { UpscalePreset, ColorFilters, EnhancementStats } from '../hooks/useVideoEnhancement';
+import { FrostedBackdrop } from './FrostedBackdrop';
 import './EnhancementPanel.css';
 
 interface Props {
@@ -150,6 +151,7 @@ export function EnhancementPanel({
           onClick={stopPlayerEvent}
           onDoubleClick={stopPlayerEvent}
         >
+          <FrostedBackdrop />
           <div className="ve-panel-header">
             <span>Video Kalitesi</span>
             <button

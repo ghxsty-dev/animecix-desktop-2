@@ -38,6 +38,7 @@ import { FlatSettingsMenu } from './FlatSettingsMenu';
 import { QualityMenu } from './QualityMenu';
 import { SpeedMenu } from './SpeedMenu';
 import { SubmenuProvider, t } from './GlassMenu';
+import { FrostedBackdrop } from './FrostedBackdrop';
 import { postToParent } from '../hooks/useParentMessages';
 import { turkishTranslations } from './translations';
 import './GlassControls.css';
@@ -75,6 +76,7 @@ function SettingsMenu({
         <SettingsIcon className="vds-icon" />
       </Menu.Button>
       <Menu.Items className="vds-menu-items glass-menu-items" placement="top end" offset={4}>
+        <FrostedBackdrop />
         <SubmenuProvider>
           <FlatSettingsMenu announcements={announcements} onAnnouncementsChange={onAnnouncementsChange} />
           <QualityMenu />
