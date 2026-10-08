@@ -45,8 +45,9 @@
   width: min(340px, calc(100vw - 28px));
   max-height: min(580px, calc(100vh - 92px));
   overflow-y: auto;
-  /* Identical recipe to the pills and settings menu. */
-  background: rgba(8, 10, 14, 0.62);
+  /* Same 16px blur as the pills and settings menu, darker fill so
+     rows stay readable over bright scenes. */
+  background: rgba(8, 10, 14, 0.78);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
   border: 1px solid rgba(255, 255, 255, 0.1);
