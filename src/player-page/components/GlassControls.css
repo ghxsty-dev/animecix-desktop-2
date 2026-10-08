@@ -488,13 +488,14 @@
 
 /* Side boxes: separate panels opening LEFT of the root box, tops aligned.
    Mounted only while their section is active; only one is ever open, so
-   switching sections just swaps the box. Same frosted recipe as the root. */
+   switching sections just swaps the box. Same frosted recipe as the root.
+   Stretched top-to-bottom so the box bottom always lines up with the root. */
 .vds-side-submenu {
   position: absolute;
   right: calc(100% + 10px);
   top: 0;
+  bottom: 0;
   min-width: 240px;
-  max-height: min(60vh, 420px);
   overflow-y: auto;
   padding: 8px;
   border-radius: 12px;
@@ -504,6 +505,13 @@
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
   animation: animecix-submenu-enter 0.2s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+/* Compact option rows so the 8 speeds fit without scrolling. */
+.vds-side-submenu .vds-radio {
+  min-height: 32px;
+  padding-top: 4px;
+  padding-bottom: 4px;
 }
 
 /* The open section's trigger stays a normal row in the root panel —

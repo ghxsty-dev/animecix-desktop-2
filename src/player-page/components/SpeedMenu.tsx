@@ -7,16 +7,9 @@ import { SettingsRadioGroup, SidePanel, SubmenuTrigger, t } from './GlassMenu';
 type PlaybackRates = number[] | { min?: number; max?: number; step?: number };
 
 /**
- * The speeds offered in the Hız submenu, in 0.25 steps up to 4x.
- *
- * Passed to the layout's playbackRates prop, which is where the menu reads them
- * from. Kept as a named constant (and covered by a test) because an earlier
- * revision quietly trimmed the list at 2x, which removed the fast-watch speeds
- * people actually use without anything failing.
+ * The speeds offered in the Hız submenu — curated short list.
  */
-export const PLAYBACK_RATES = [
-  0.25, 0.5, 0.75, 1, 1.25, 1.5, 1.75, 2, 2.25, 2.5, 2.75, 3, 3.25, 3.5, 3.75, 4,
-];
+export const PLAYBACK_RATES = [0.25, 0.5, 1, 1.25, 1.5, 2, 2.5, 4];
 
 /**
  * Resolves the discrete selectable speeds from the layout playbackRates config.
