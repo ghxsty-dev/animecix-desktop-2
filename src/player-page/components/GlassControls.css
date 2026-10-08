@@ -30,7 +30,10 @@
 [data-ended] .glass-controls {
   opacity: 1;
   transform: translateY(0);
-  pointer-events: auto;
+  /* !important: Vidstack's Controls root carries an inline pointer-events
+     style that would otherwise keep the whole bar (including the seek
+     slider) unclickable even while visible. */
+  pointer-events: auto !important;
 }
 
 @media (prefers-reduced-motion) {
