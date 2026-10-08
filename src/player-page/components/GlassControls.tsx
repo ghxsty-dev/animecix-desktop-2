@@ -356,6 +356,9 @@ export function GlassControls({ hasNext, announcements, onAnnouncementsChange, e
               <TimeSlider.Progress className="glass-slider-progress glass-slider-track" />
             </TimeSlider.Track>
             <TimeSlider.Thumb className="glass-slider-thumb" />
+            <TimeSlider.Preview className="glass-slider-preview">
+              <TimeSlider.Value className="glass-slider-value" />
+            </TimeSlider.Preview>
           </TimeSlider.Root>
         )}
       </Controls.Root>
