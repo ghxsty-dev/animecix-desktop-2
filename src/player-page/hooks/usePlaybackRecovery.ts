@@ -28,7 +28,7 @@ interface PlaybackRecoveryOptions {
  * is left on a black frame.
  *
  * It happens because a second `load()` aborts the fetch the first one started:
- * the stored quality preference is restored right after `canPlay`, and if it
+ * the stored quality preference is restored once the new sources are in, and if it
  * does not match the source already loading, the swap kills the in-flight
  * request. Setting `preload` back to `auto` does not revive it; only re-running
  * the resource selection algorithm does. So that is the escalation: seek first,
