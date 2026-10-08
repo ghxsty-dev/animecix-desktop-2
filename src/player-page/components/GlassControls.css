@@ -29,7 +29,13 @@
 [data-controls] .glass-controls,
 [data-ended] .glass-controls {
   opacity: 1;
-  transform: translateY(0);
+  /* MUST stay `none`, not `translateY(0)`: any transform on the bar makes
+     it the containing block AND backdrop root for the fixed settings menu
+     inside it, and Chromium then refuses to sample the video for the
+     menu's `backdrop-filter` (menu renders with a dead, sharp backdrop).
+     Measured directly: translateY(0) → sharp, none → frosted. The slide-in
+     still works — `none` interpolates as the identity from translateY(8px). */
+  transform: none;
   /* !important: Vidstack's Controls root carries an inline pointer-events
      style that would otherwise keep the whole bar (including the seek
      slider) unclickable even while visible. */
@@ -404,21 +410,6 @@
   font-weight: 650;
   font-variant-numeric: tabular-nums;
   white-space: nowrap;
-}
-
-/* ── Frosted live-video backdrop (see FrostedBackdrop.tsx) ───────
-   A single blurred snapshot of the frame behind the panel. Paints below
-   the rows (panels stack above it via their own stacking context). */
-
-.frost-canvas {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  border-radius: inherit;
-  filter: blur(18px) saturate(140%) brightness(0.68);
-  pointer-events: none;
-  z-index: -1;
 }
 
 /* ── Settings menu panel ─────────────────────────────────────── */

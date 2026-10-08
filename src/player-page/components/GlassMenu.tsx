@@ -1,7 +1,6 @@
 import { createContext, useCallback, useContext, useEffect, useState } from 'react';
 import { Menu, Slider } from '@vidstack/react';
 import { CheckIcon } from '@vidstack/react/icons';
-import { FrostedBackdrop } from './FrostedBackdrop';
 import { turkishTranslations } from './translations';
 
 /** Typed lookup into the Turkish translation map (replaces useDefaultLayoutWord). */
@@ -86,7 +85,6 @@ export function SidePanel({ id, lift = 0, children }: { id: string; lift?: numbe
   if (active !== id) return null;
   return (
     <div className="vds-menu-items vds-side-submenu" role="menu" style={lift ? { top: -lift } : undefined}>
-      <FrostedBackdrop />
       {children}
     </div>
   );
