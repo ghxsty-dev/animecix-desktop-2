@@ -52,17 +52,16 @@
 
 /* Glass effect for menu panels is defined per-panel in GlassControls.css. */
 
-/* Menu open animation: fade + rise + scale-in. The default vds-menu-enter only
-   fades the menu; this gives it a subtle pop that is not tied to the (disabled)
-   height transition above. */
+/* Menu open animation: fade + rise. No scaling — the panel must never
+   look like it grows when submenus open or options are picked. */
 @keyframes animecix-menu-enter {
   from {
     opacity: 0;
-    transform: translateY(12px) scale(0.96);
+    transform: translateY(12px);
   }
   to {
     opacity: 1;
-    transform: translateY(0) scale(1);
+    transform: translateY(0);
   }
 }
 
@@ -77,17 +76,16 @@
   }
 }
 
-/* Submenu panels (Kalite/Hız/Altyazı Tarzları) slide in from the right and
-   grow (scale) when they open. The root height snaps instantly (see above),
-   so the fade + slide + grow keeps the swap from feeling like an empty pop. */
+/* Submenu panels (Kalite/Hız/Altyazı Tarzları) slide in from the right.
+   No scaling — same reason as above. */
 @keyframes animecix-submenu-enter {
   from {
     opacity: 0;
-    transform: translateX(12px) scale(0.96);
+    transform: translateX(12px);
   }
   to {
     opacity: 1;
-    transform: translateX(0) scale(1);
+    transform: translateX(0);
   }
 }
 

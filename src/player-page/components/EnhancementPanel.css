@@ -45,12 +45,11 @@
   width: min(340px, calc(100vw - 28px));
   max-height: min(580px, calc(100vh - 92px));
   overflow-y: auto;
-  /* Glass look must match the settings menus (EmbedPlayer.css defines the
-     --media-menu-* tokens on .vds-video-layout, so they cascade here). */
-  background: var(--media-menu-bg, rgba(10, 10, 10, 0.62));
-  backdrop-filter: blur(14px) saturate(140%);
-  -webkit-backdrop-filter: blur(14px) saturate(140%);
-  border: var(--media-menu-border, 1px solid rgba(255, 255, 255, 0.12));
+  /* Flat blur identical to the settings menu (no token dependency). */
+  background: rgba(8, 10, 14, 0.62);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: var(--media-menu-border-radius, 12px);
   padding: 12px;
   color: #fff;
