@@ -454,10 +454,9 @@
   border-radius: 12px;
   border: 1px solid rgba(255, 255, 255, 0.12);
   color: #fff;
-  background-color: rgba(10, 10, 10, 0.48);
-  backdrop-filter: blur(14px) saturate(140%);
-  -webkit-backdrop-filter: blur(14px) saturate(140%);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+  background-color: rgba(8, 10, 14, 0.62);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
   font-family: Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   animation: animecix-menu-enter 0.24s cubic-bezier(0.22, 1, 0.36, 1) both;
   /* Fixed height in every state — the panel must never grow or shrink when
@@ -492,9 +491,9 @@
    root panel — they need their own opaque-ish background, otherwise the
    root rows show through behind the options. */
 .glass-menu-items[data-submenu] {
-  background-color: rgba(10, 10, 10, 0.48);
-  backdrop-filter: blur(14px) saturate(140%);
-  -webkit-backdrop-filter: blur(14px) saturate(140%);
+  background-color: rgba(8, 10, 14, 0.62);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
   border-radius: 12px;
 }
 

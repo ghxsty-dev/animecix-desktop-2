@@ -45,7 +45,7 @@
   width: min(340px, calc(100vw - 28px));
   max-height: min(580px, calc(100vh - 92px));
   overflow-y: auto;
-  /* Flat blur identical to the settings menu (no token dependency). */
+  /* Identical recipe to the pills and settings menu. */
   background: rgba(8, 10, 14, 0.62);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
