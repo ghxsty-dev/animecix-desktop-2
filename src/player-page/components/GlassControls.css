@@ -377,59 +377,6 @@
   will-change: left;
 }
 
-.glass-slider-preview {
-  position: absolute;
-  bottom: calc(100% + 12px);
-  transform: translateX(-50%);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 6px;
-  padding: 8px;
-  border-radius: 14px;
-  border: 1px solid rgba(255, 255, 255, 0.14);
-  background-color: rgba(10, 12, 16, 0.72);
-  backdrop-filter: blur(18px);
-  -webkit-backdrop-filter: blur(18px);
-  box-shadow: 0 14px 36px rgba(0, 0, 0, 0.55);
-  pointer-events: none;
-  /* Vidstack sets data-visible while hovering/dragging the slider. */
-  opacity: 0;
-}
-
-.glass-slider-preview[data-visible] {
-  opacity: 1;
-}
-
-.glass-slider-thumbnail {
-  display: block;
-  overflow: hidden;
-  border-radius: 8px;
-}
-
-.glass-slider-thumbnail img {
-  display: block;
-  width: 160px;
-  aspect-ratio: 16 / 9;
-  object-fit: cover;
-}
-
-.glass-slider-chapter {
-  color: rgba(255, 255, 255, 0.75);
-  font-size: 11px;
-  max-width: 160px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.glass-slider-value {
-  color: #fff;
-  font-size: 12px;
-  font-weight: 650;
-  font-variant-numeric: tabular-nums;
-}
-
 /* ── Settings menu panel ─────────────────────────────────────── */
 
 .glass-settings {

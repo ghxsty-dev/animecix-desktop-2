@@ -43,7 +43,6 @@ import { turkishTranslations } from './translations';
 import './GlassControls.css';
 
 interface GlassControlsProps {
-  thumbnails?: string;
   hasNext: boolean;
   announcements: boolean;
   onAnnouncementsChange: (enabled: boolean) => void;
@@ -277,7 +276,7 @@ function SeekGestures() {
   );
 }
 
-export function GlassControls({ thumbnails, hasNext, announcements, onAnnouncementsChange, enhancement }: GlassControlsProps) {
+export function GlassControls({ hasNext, announcements, onAnnouncementsChange, enhancement }: GlassControlsProps) {
   useKeyboardShortcuts();
   const live = useMediaState('live');
 
@@ -357,15 +356,6 @@ export function GlassControls({ thumbnails, hasNext, announcements, onAnnounceme
               <TimeSlider.Progress className="glass-slider-progress glass-slider-track" />
             </TimeSlider.Track>
             <TimeSlider.Thumb className="glass-slider-thumb" />
-            <TimeSlider.Preview className="glass-slider-preview">
-              {thumbnails && (
-                <TimeSlider.Thumbnail.Root src={thumbnails} className="glass-slider-thumbnail">
-                  <TimeSlider.Thumbnail.Img />
-                </TimeSlider.Thumbnail.Root>
-              )}
-              <TimeSlider.ChapterTitle className="glass-slider-chapter" />
-              <TimeSlider.Value className="glass-slider-value" />
-            </TimeSlider.Preview>
           </TimeSlider.Root>
         )}
       </Controls.Root>

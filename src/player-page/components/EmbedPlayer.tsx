@@ -501,7 +501,6 @@ export function EmbedPlayer() {
         />
 
         <GlassControls
-          thumbnails={isOffline ? undefined : import.meta.env.VITE_API_BASE_URL + '/preview/' + id}
           hasNext={navInfo?.hasNext ?? false}
           announcements={announcements}
           onAnnouncementsChange={setAnnouncements}
