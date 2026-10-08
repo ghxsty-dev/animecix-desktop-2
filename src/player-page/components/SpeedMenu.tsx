@@ -61,7 +61,7 @@ export function SpeedMenu() {
   return (
     <>
       <SubmenuTrigger id="speed" label={speedWord} hint={valueLabel} Icon={OdometerIcon} />
-      <SidePanel id="speed">
+      <SidePanel id="speed" lift={20}>
         <SettingsRadioGroup
           value={String(playbackRate)}
           options={options.map((rate) => ({

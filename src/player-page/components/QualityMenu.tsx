@@ -94,7 +94,7 @@ export function QualityMenu() {
   return (
     <>
       <SubmenuTrigger id="quality" label={qualityWord} hint={currentLabel} Icon={ComputerIcon} />
-      <SidePanel id="quality">
+      <SidePanel id="quality" lift={15}>
         <SettingsRadioGroup value={currentValue} options={options} onChange={onSelect} />
       </SidePanel>
     </>

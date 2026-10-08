@@ -77,12 +77,14 @@ export function SubmenuTrigger({ id, label, hint, Icon }: SubmenuTriggerProps) {
   );
 }
 
-/** Side box rendering the active section's options. Mounted only when open. */
-export function SidePanel({ id, children }: { id: string; children: React.ReactNode }) {
+/** Side box rendering the active section's options. Mounted only when open.
+ * `lift` extends the box upward past the root top (px) while the bottom
+ * stays glued to the root bottom. */
+export function SidePanel({ id, lift = 0, children }: { id: string; lift?: number; children: React.ReactNode }) {
   const { active } = useSubmenu();
   if (active !== id) return null;
   return (
-    <div className="vds-menu-items vds-side-submenu" role="menu">
+    <div className="vds-menu-items vds-side-submenu" role="menu" style={lift ? { top: -lift } : undefined}>
       {children}
     </div>
   );
