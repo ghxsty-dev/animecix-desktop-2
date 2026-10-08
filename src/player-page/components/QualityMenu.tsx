@@ -5,6 +5,7 @@ import {
   DefaultMenuRadioGroup,
   useDefaultLayoutWord,
 } from '@vidstack/react/player/layouts/default';
+import { saveQuality } from '../hooks/useQualityPersistence';
 
 interface QualityLike {
   height?: number;
@@ -84,13 +85,18 @@ export function QualityMenu() {
   const currentValue = resolveQualityValue(autoQuality, quality);
   const currentLabel = currentValue === 'auto' ? autoWord : `${currentValue}p`;
 
+  // The only place the preference is written: a viewer's pick, never an
+  // automatic switch or a revert (see useQualityPersistence).
   const onSelect = (value: string) => {
     if (value === 'auto') {
+      saveQuality(null);
       remote.requestAutoQuality();
       return;
     }
     const index = findQualityIndex(qualities, value);
     if (index >= 0) {
+      const picked = qualities[index];
+      saveQuality({ width: picked.width, height: picked.height, bitrate: picked.bitrate });
       remote.changeQuality(index);
     }
   };
