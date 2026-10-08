@@ -13,7 +13,6 @@ import { GlassControls } from './GlassControls';
 import { useAnnouncementsPref } from './playerPrefs';
 import { SkipButton } from './SkipButton';
 import { MusicInfo } from './MusicInfo';
-import { NavigationButtons } from './NavigationButtons';
 import { useVideoData } from '../hooks/useVideoData';
 import { useParentMessages, postToParent } from '../hooks/useParentMessages';
 import { useQualityPersistence } from '../hooks/useQualityPersistence';
@@ -503,6 +502,7 @@ export function EmbedPlayer() {
 
         <GlassControls
           thumbnails={isOffline ? undefined : import.meta.env.VITE_API_BASE_URL + '/preview/' + id}
+          hasNext={navInfo?.hasNext ?? false}
           announcements={announcements}
           onAnnouncementsChange={setAnnouncements}
           enhancement={{
@@ -518,12 +518,6 @@ export function EmbedPlayer() {
         />
         <SkipButton meta={meta} />
         <MusicInfo meta={meta} />
-        {navInfo && (
-          <NavigationButtons
-            hasNext={navInfo.hasNext}
-            hasPrev={navInfo.hasPrev}
-          />
-        )}
       </MediaPlayer>
 
       <canvas

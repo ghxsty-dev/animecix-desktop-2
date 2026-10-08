@@ -12,6 +12,7 @@ import {
   Spinner,
   Time,
   TimeSlider,
+  Title,
   VolumeSlider,
   useMediaPlayer,
   useMediaState,
@@ -37,11 +38,13 @@ import { FlatSettingsMenu } from './FlatSettingsMenu';
 import { QualityMenu } from './QualityMenu';
 import { SpeedMenu } from './SpeedMenu';
 import { t } from './GlassMenu';
+import { postToParent } from '../hooks/useParentMessages';
 import { turkishTranslations } from './translations';
 import './GlassControls.css';
 
 interface GlassControlsProps {
   thumbnails?: string;
+  hasNext: boolean;
   announcements: boolean;
   onAnnouncementsChange: (enabled: boolean) => void;
   enhancement: {
@@ -81,6 +84,29 @@ function SettingsMenu({
       </Menu.Items>
     </Menu.Root>
   );
+}
+
+/** Blue next-episode pill (replaces the old side arrows). */
+function NextEpisodePill() {
+  return (
+    <button
+      className="glass-next-pill"
+      aria-label="Sonraki bölüm"
+      onClick={() => postToParent('next')}
+    >
+      <span>Sonraki Bölüm</span>
+      <svg viewBox="0 0 24 24" fill="currentColor" width="22" height="22" aria-hidden="true">
+        <path d="M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z" />
+      </svg>
+    </button>
+  );
+}
+
+/** Anime + episode title next to the clock (set by the parent site). */
+function GlassTitle() {
+  const title = useMediaState('title');
+  if (!title) return null;
+  return <Title className="glass-title" />;
 }
 
 /** PiP pill button (design puts it in the right pill, next to settings). */
@@ -193,7 +219,7 @@ function useKeyboardShortcuts() {
   }, [player]);
 }
 
-export function GlassControls({ thumbnails, announcements, onAnnouncementsChange, enhancement }: GlassControlsProps) {
+export function GlassControls({ thumbnails, hasNext, announcements, onAnnouncementsChange, enhancement }: GlassControlsProps) {
   useKeyboardShortcuts();
   const live = useMediaState('live');
 
@@ -247,7 +273,11 @@ export function GlassControls({ thumbnails, announcements, onAnnouncementsChange
 
           {live && <div className="glass-live-spacer" />}
 
+          {!live && <GlassTitle />}
+
           <div className="glass-spacer" />
+
+          {!live && hasNext && <NextEpisodePill />}
 
           <div className="glass-pill" role="group" aria-label={t('Settings')}>
             <SettingsMenu announcements={announcements} onAnnouncementsChange={onAnnouncementsChange} />

@@ -17,6 +17,7 @@ function Harness() {
       <GlassControls
         announcements={announcements}
         onAnnouncementsChange={setAnnouncements}
+        hasNext
         enhancement={{
           preset: 'off',
           onPresetChange: () => {},

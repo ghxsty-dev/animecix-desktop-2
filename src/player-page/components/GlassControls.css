@@ -150,6 +150,50 @@
   height: 31px;
 }
 
+/* ── Next-episode blue pill ────────────────────────────────────── */
+
+.glass-next-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 48px;
+  padding: 6px 8px 6px 18px;
+  border: none;
+  border-radius: 999px;
+  background: #1a9fff;
+  color: #fff;
+  font-size: 14px;
+  font-weight: 700;
+  font-family: inherit;
+  cursor: pointer;
+  box-shadow: 0 8px 24px rgba(26, 159, 255, 0.35);
+  transition: background-color 0.15s ease, transform 0.15s ease;
+  white-space: nowrap;
+}
+
+.glass-next-pill:hover {
+  background: #33adff;
+}
+
+.glass-next-pill:active {
+  transform: scale(0.96);
+}
+
+/* ── Anime/episode title next to the clock ─────────────────────── */
+
+.glass-title {
+  color: rgba(255, 255, 255, 0.85);
+  font-size: 14px;
+  font-weight: 550;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 32vw;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.7);
+  padding-inline: 6px;
+  user-select: none;
+}
+
 /* ── Button row ──────────────────────────────────────────────── */
 
 .glass-button-row {
@@ -419,9 +463,19 @@
   animation: animecix-menu-enter 0.24s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 
-.glass-settings .glass-menu-items[data-root][data-placement] {
+.glass-settings .glass-menu-items[data-root] {
+  /* Take over geometry from the placement engine (which anchors to the
+     gear button and ends up overlapping the pill).
+     NOTE: the pill's backdrop-filter makes it the containing block for
+     fixed descendants, so right/bottom resolve against the PILL box, not
+     the viewport: right edge flush with the pill, bottom 4px above the
+     pill top (pill = 40px buttons + 2×4px padding). */
+  position: fixed !important;
   left: auto !important;
-  right: clamp(14px, 2.5vw, 28px) !important;
+  top: auto !important;
+  transform: none !important;
+  right: 0;
+  bottom: 54px;
 }
 
 /* Vidstack animates the panel height on open (submenu swaps stretch through
@@ -728,6 +782,16 @@
   }
 
   .glass-time-pill {
+    display: none;
+  }
+
+  .glass-next-pill {
+    min-height: 40px;
+    font-size: 13px;
+    padding-left: 14px;
+  }
+
+  .glass-title {
     display: none;
   }
 

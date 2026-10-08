@@ -281,60 +281,6 @@
   transform: translateY(0);
 }
 
-/* Navigation buttons (prev/next episode) - only visible when controls are shown */
-.nav-btn {
-  position: absolute;
-  top: 50%;
-  transform: translateY(-50%);
-  z-index: 999999;
-  pointer-events: auto;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: rgba(10, 10, 10, 0.58);
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
-  color: white;
-  border: 1px solid rgba(255, 255, 255, 0.14);
-  border-radius: 50%;
-  width: 48px;
-  height: 48px;
-  cursor: pointer;
-  transition: background-color 0.2s, opacity 0.3s, transform 0.2s;
-  opacity: 0;
-  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.38);
-}
-
-[data-controls] .nav-btn {
-  opacity: 0.7;
-}
-
-[data-controls] .nav-btn:hover {
-  background-color: rgba(255, 255, 255, 0.18);
-  opacity: 1;
-  transform: translateY(-50%) scale(1.04);
-}
-
-.nav-btn-prev {
-  left: 25%;
-}
-
-.nav-btn-next {
-  right: 25%;
-}
-
-@media (min-width: 768px) {
-  .nav-btn {
-    width: 60px;
-    height: 60px;
-  }
-
-  .nav-btn svg {
-    width: 32px;
-    height: 32px;
-  }
-}
-
 /* Enhancement container + dynamically created canvas */
 .enhancement-container {
   position: absolute;
@@ -483,7 +429,7 @@
 
 /* ---- LIVE MODE (selectors live in GlassControls.css) ---- */
 
-/* ---- SKIP / NAV / ENHANCEMENT / OFFLINE / SPINNER (unchanged) ---- */
+/* ---- SKIP / ENHANCEMENT / OFFLINE / SPINNER (unchanged) ---- */
 
 .live-badge {
   position: absolute;
@@ -542,14 +488,6 @@
     min-height: 38px;
     padding: 8px 14px;
     font-size: 13px;
-  }
-
-  .nav-btn-prev {
-    left: 14px;
-  }
-
-  .nav-btn-next {
-    right: 14px;
   }
 
   .offline-header {

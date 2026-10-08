@@ -34,14 +34,13 @@
 }
 
 .ve-panel {
-  /* Pinned to the player's right edge (same clamp offset as the settings
-     menu). Fixed to the iframe viewport because the toggle lives in the
-     corner-actions row above the pills. */
+  /* NOTE: this fixed panel resolves against the right pill, whose
+     backdrop-filter traps fixed descendants (same as the settings menu).
+     Right edge flush with the pill, bottom 4px above the pill top —
+     level with the settings menu. */
   position: fixed;
-  right: clamp(14px, 2.5vw, 28px);
-  /* Bottom edge floats just above the right pill (same line as the settings
-     menu) so the panel never covers the star toggle that opened it. */
-  bottom: 112px;
+  right: 0;
+  bottom: 54px;
   z-index: 999998;
   width: min(340px, calc(100vw - 28px));
   max-height: min(580px, calc(100vh - 92px));
