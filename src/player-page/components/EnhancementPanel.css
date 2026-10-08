@@ -38,10 +38,10 @@
      menu). Fixed to the iframe viewport because the toggle lives in the
      corner-actions row above the pills. */
   position: fixed;
-  right: 12px;
-  /* Bottom edge floats just above the right pill so the panel never
-     covers the star toggle that opened it. */
-  bottom: 118px;
+  right: clamp(14px, 2.5vw, 28px);
+  /* Bottom edge floats just above the right pill (same line as the settings
+     menu) so the panel never covers the star toggle that opened it. */
+  bottom: 112px;
   z-index: 999998;
   width: min(340px, calc(100vw - 28px));
   max-height: min(580px, calc(100vh - 92px));

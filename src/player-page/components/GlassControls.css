@@ -96,8 +96,8 @@
 }
 
 .glass-time-pill {
-  padding: 6px 18px;
-  min-height: 48px;
+  padding: 2px 16px;
+  min-height: 38px;
 }
 
 /* ── Flat blur circle buttons ──────────────────────────────────
@@ -421,7 +421,7 @@
 
 .glass-settings .glass-menu-items[data-root][data-placement] {
   left: auto !important;
-  right: 12px !important;
+  right: clamp(14px, 2.5vw, 28px) !important;
 }
 
 /* Vidstack animates the panel height on open (submenu swaps stretch through

@@ -72,7 +72,7 @@ function SettingsMenu({
       <Menu.Button className="glass-btn" aria-label={t('Settings')} title={t('Settings')}>
         <SettingsIcon className="vds-icon" />
       </Menu.Button>
-      <Menu.Items className="vds-menu-items glass-menu-items" placement="top end">
+      <Menu.Items className="vds-menu-items glass-menu-items" placement="top end" offset={4}>
         <FlatSettingsMenu announcements={announcements} onAnnouncementsChange={onAnnouncementsChange} />
         <QualityMenu />
         <SpeedMenu />
