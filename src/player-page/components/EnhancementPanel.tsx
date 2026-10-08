@@ -144,8 +144,7 @@ export function EnhancementPanel({
       {panelOpen && (
         <div
           className="ve-panel"
-          role="menu"
-          onPointerDown={stopPlayerEvent}
+          role="menu"          onPointerDown={stopPlayerEvent}
           onMouseDown={stopPlayerEvent}
           onTouchStart={stopPlayerEvent}
           onClick={stopPlayerEvent}
