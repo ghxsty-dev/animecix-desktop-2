@@ -480,28 +480,56 @@
   bottom: 54px;
 }
 
-/* Root panel keeps its natural (content) height; only the tall-submenu
-   rule below changes it (animated). The horizontal clip kills the stray
-   scrollbar the sticky submenu header row would draw. */
+/* Root panel keeps its natural (content) height. The horizontal clip
+   kills the stray scrollbar the submenu trigger rows would draw. */
 .glass-menu-items[data-root] {
-  transition: height 0.25s ease;
   overflow-x: hidden;
 }
 
-/* Hız/Kalite submenus only: grow the panel slightly TALLER than the root
-   menu (animated) and hide the root rows behind a near-opaque panel. */
-.glass-menu-items[data-root]:has(.vds-tall-submenu[data-open]) {
-  height: 330px;
+/* Submenus open BESIDE the root panel (left side, tops aligned) instead
+   of overlaying it. Only one submenu is ever open (Vidstack closes the
+   others), so switching Hız→Kalite just swaps the side panel. Same
+   frosted recipe as the root panel. */
+.glass-menu-items.vds-quick-submenu[data-open] {
+  position: absolute !important;
+  inset: auto !important;
+  transform: none !important;
+  right: calc(100% + 10px) !important;
+  top: 0 !important;
+  left: auto !important;
+  bottom: auto !important;
+  height: auto !important;
+  min-width: 240px;
+  max-height: min(60vh, 420px);
+  overflow-y: auto;
+  padding: 8px !important;
 }
 
-.glass-menu-items.vds-tall-submenu[data-open] {
-  background-color: rgba(8, 10, 14, 0.92);
+/* The open submenu's trigger stays a normal row in the root panel —
+   highlighted so the active section is obvious. (The old overlay CSS in
+   EmbedPlayer.css turned it into a floating header; neutralized here.) */
+.glass-menu-items[data-root] .vds-menu:has(> .vds-menu-items.vds-quick-submenu[data-open]) > .vds-menu-item {
+  position: static !important;
+  width: auto !important;
+  border-bottom: none !important;
+  z-index: auto !important;
+  background: rgba(0, 116, 228, 0.22) !important;
 }
 
-/* Other submenus overlay the root panel — translucent like it, so the
-   frosted stack stays consistent. */
+@media (max-width: 700px) {
+  /* Narrow windows: fall back to overlaying the root panel. */
+  .glass-menu-items.vds-quick-submenu[data-open] {
+    right: 0 !important;
+    left: 0 !important;
+    top: 0 !important;
+    height: 100% !important;
+  }
+}
+
+/* Other submenus sit beside the root panel — same frosted recipe so the
+   stack stays consistent. */
 .glass-menu-items[data-submenu] {
-  background-color: rgba(8, 10, 14, 0.62);
+  background-color: rgba(8, 10, 14, 0.78);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
   border-radius: 12px;
@@ -524,9 +552,9 @@
   border-radius: 999px;
 }
 
-/* Root panel keeps its natural (content) height — submenus overlay
-   absolutely, so opening one never resizes the panel. The horizontal clip
-   kills the stray scrollbar the sticky submenu header row would draw. */
+/* Root panel keeps its natural (content) height — submenus sit beside
+   it, so opening one never resizes the panel. The horizontal clip
+   kills the stray scrollbar the submenu trigger rows would draw. */
 .glass-menu-items[data-root] {
   overflow-x: hidden;
 }

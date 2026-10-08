@@ -182,7 +182,21 @@ function useKeyboardShortcuts() {
 
     const onKeyDown = (event: KeyboardEvent) => {
       const target = event.target as HTMLElement | null;
-      if (target && (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA')) return;
+      // Let focused controls handle their own keys (otherwise Space on a
+      // menu button would both toggle playback here AND activate the button,
+      // and arrows on the sliders would seek twice).
+      if (
+        target &&
+        (target.tagName === 'INPUT' ||
+          target.tagName === 'TEXTAREA' ||
+          target.tagName === 'SELECT' ||
+          target.tagName === 'BUTTON' ||
+          target.closest?.(
+            'button, [role="button"], [role="slider"], [role="menu"], [role="menuitem"], [role="menuitemcheckbox"], [role="menuitemradio"], [role="radiogroup"], a'
+          ))
+      ) {
+        return;
+      }
 
       switch (event.key) {
         case ' ':
