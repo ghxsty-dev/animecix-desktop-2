@@ -14,6 +14,7 @@ import {
   TimeSlider,
   Title,
   VolumeSlider,
+  useMediaContext,
   useMediaPlayer,
   useMediaState,
 } from '@vidstack/react';
@@ -95,7 +96,7 @@ function NextEpisodePill() {
       onClick={() => postToParent('next')}
     >
       <span>Sonraki Bölüm</span>
-      <svg viewBox="0 0 24 24" fill="currentColor" width="22" height="22" aria-hidden="true">
+      <svg viewBox="0 0 24 24" fill="currentColor" width="18" height="18" aria-hidden="true">
         <path d="M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z" />
       </svg>
     </button>
@@ -219,17 +220,43 @@ function useKeyboardShortcuts() {
   }, [player]);
 }
 
+/** Click zones: single click toggles play; double-click seeks ∓10s on the
+ * outer thirds and toggles fullscreen in the middle third. */
+function SeekGestures() {
+  const player = useMediaPlayer();
+  const { remote } = useMediaContext();
+  const duration = useMediaState('duration');
+  const fullscreen = useMediaState('fullscreen');
+
+  const onDoubleClick = (event: React.MouseEvent<HTMLDivElement>) => {
+    if (!player) return;
+    const rect = event.currentTarget.getBoundingClientRect();
+    const ratio = (event.clientX - rect.left) / rect.width;
+    if (ratio < 0.35) {
+      player.currentTime = Math.max(0, player.currentTime - 10);
+    } else if (ratio > 0.65) {
+      player.currentTime = Math.min(duration || 0, player.currentTime + 10);
+    } else if (fullscreen) {
+      remote.exitFullscreen();
+    } else {
+      remote.requestFullscreen();
+    }
+  };
+
+  return (
+    <div className="vds-gestures" onDoubleClick={onDoubleClick}>
+      <Gesture className="vds-gesture" event="pointerup" action="toggle:paused" />
+    </div>
+  );
+}
+
 export function GlassControls({ thumbnails, hasNext, announcements, onAnnouncementsChange, enhancement }: GlassControlsProps) {
   useKeyboardShortcuts();
   const live = useMediaState('live');
 
   return (
     <>
-      <div className="vds-gestures">
-        <Gesture className="vds-gesture" event="pointerup" action="toggle:paused" />
-        <Gesture className="vds-gesture" event="pointerup" action="toggle:controls" />
-        <Gesture className="vds-gesture" event="dblpointerup" action="toggle:fullscreen" />
-      </div>
+      <SeekGestures />
 
       <Captions className="vds-captions" />
 
@@ -265,7 +292,7 @@ export function GlassControls({ thumbnails, hasNext, announcements, onAnnounceme
             <div className="glass-pill glass-time-pill">
               <div className="glass-time">
                 <Time className="glass-time-current" type="current" />
-                <span className="glass-time-divider">/</span>
+                <span className="glass-time-divider">•</span>
                 <Time className="glass-time-duration" type="duration" />
               </div>
             </div>

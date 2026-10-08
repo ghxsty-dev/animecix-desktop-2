@@ -92,7 +92,6 @@
   background-color: rgba(8, 10, 14, 0.62);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
 }
 
 .glass-time-pill {
@@ -118,7 +117,6 @@
   background-color: rgba(10, 12, 16, 0.45);
   backdrop-filter: blur(14px);
   -webkit-backdrop-filter: blur(14px);
-  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.35);
   transition: background-color 0.15s ease, transform 0.15s ease;
 }
 
@@ -155,20 +153,24 @@
 .glass-next-pill {
   display: inline-flex;
   align-items: center;
-  gap: 8px;
-  min-height: 48px;
-  padding: 6px 8px 6px 18px;
+  gap: 7px;
+  min-height: 42px;
+  padding: 5px 7px 5px 15px;
   border: none;
   border-radius: 999px;
   background: #1a9fff;
   color: #fff;
-  font-size: 14px;
+  font-size: 12px;
   font-weight: 700;
   font-family: inherit;
   cursor: pointer;
-  box-shadow: 0 8px 24px rgba(26, 159, 255, 0.35);
   transition: background-color 0.15s ease, transform 0.15s ease;
   white-space: nowrap;
+}
+
+.glass-next-pill svg {
+  width: 18px;
+  height: 18px;
 }
 
 .glass-next-pill:hover {
@@ -369,7 +371,6 @@
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.55);
   transform: translate(-50%, -50%) scale(0.6);
   opacity: 0;
-  transition: opacity 0.15s ease, transform 0.15s ease;
   pointer-events: none;
   will-change: left;
 }
@@ -400,7 +401,6 @@
   pointer-events: none;
   /* Vidstack sets data-visible while hovering/dragging the slider. */
   opacity: 0;
-  transition: opacity 0.18s ease;
 }
 
 .glass-slider-preview[data-visible] {
@@ -489,10 +489,27 @@
    root panel — they need their own opaque-ish background, otherwise the
    root rows show through behind the options. */
 .glass-menu-items[data-submenu] {
-  background-color: rgba(12, 14, 18, 0.94);
+  background-color: rgba(8, 10, 14, 0.85);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
   border-radius: 12px;
+}
+
+/* Thin blue scrollbar for the settings panels. */
+.glass-menu-items[data-root]::-webkit-scrollbar,
+.glass-menu-items[data-submenu]::-webkit-scrollbar {
+  width: 5px;
+}
+
+.glass-menu-items[data-root]::-webkit-scrollbar-track,
+.glass-menu-items[data-submenu]::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.glass-menu-items[data-root]::-webkit-scrollbar-thumb,
+.glass-menu-items[data-submenu]::-webkit-scrollbar-thumb {
+  background: #1a9fff;
+  border-radius: 999px;
 }
 
 /* Pin root panel height while a submenu is open (same contract the old
