@@ -1,6 +1,6 @@
-import { Menu, useMediaContext, useMediaState } from '@vidstack/react';
+import { useMediaContext, useMediaState } from '@vidstack/react';
 import { OdometerIcon } from '@vidstack/react/icons';
-import { SettingsRadioGroup, SettingsRowButton, t } from './GlassMenu';
+import { SettingsRadioGroup, SidePanel, SubmenuTrigger, t } from './GlassMenu';
 
 // The range form's fields are optional because the expansion below supplies
 // defaults for each of them.
@@ -66,9 +66,9 @@ export function SpeedMenu() {
   const valueLabel = formatSpeedValue(playbackRate, normalWord);
 
   return (
-    <Menu.Root className="vds-menu">
-      <SettingsRowButton label={speedWord} hint={valueLabel} Icon={OdometerIcon} />
-      <Menu.Items className="vds-menu-items glass-menu-items vds-quick-submenu">
+    <>
+      <SubmenuTrigger id="speed" label={speedWord} hint={valueLabel} Icon={OdometerIcon} />
+      <SidePanel id="speed">
         <SettingsRadioGroup
           value={String(playbackRate)}
           options={options.map((rate) => ({
@@ -77,7 +77,7 @@ export function SpeedMenu() {
           }))}
           onChange={(value) => remote.changePlaybackRate(parseFloat(value))}
         />
-      </Menu.Items>
-    </Menu.Root>
+      </SidePanel>
+    </>
   );
 }

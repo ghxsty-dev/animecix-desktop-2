@@ -1,6 +1,6 @@
-import { Menu, useMediaContext, useMediaState } from '@vidstack/react';
+import { useMediaContext, useMediaState } from '@vidstack/react';
 import { ComputerIcon } from '@vidstack/react/icons';
-import { SettingsRadioGroup, SettingsRowButton, t } from './GlassMenu';
+import { SettingsRadioGroup, SidePanel, SubmenuTrigger, t } from './GlassMenu';
 
 interface QualityLike {
   height?: number;
@@ -92,11 +92,11 @@ export function QualityMenu() {
   };
 
   return (
-    <Menu.Root className="vds-menu">
-      <SettingsRowButton label={qualityWord} hint={currentLabel} Icon={ComputerIcon} />
-      <Menu.Items className="vds-menu-items glass-menu-items vds-quick-submenu">
+    <>
+      <SubmenuTrigger id="quality" label={qualityWord} hint={currentLabel} Icon={ComputerIcon} />
+      <SidePanel id="quality">
         <SettingsRadioGroup value={currentValue} options={options} onChange={onSelect} />
-      </Menu.Items>
-    </Menu.Root>
+      </SidePanel>
+    </>
   );
 }

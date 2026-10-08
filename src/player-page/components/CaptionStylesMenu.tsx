@@ -1,11 +1,12 @@
 import { useEffect, useState } from 'react';
-import { Menu, useMediaPlayer, useMediaState } from '@vidstack/react';
+import { useMediaPlayer, useMediaState } from '@vidstack/react';
 import { SubtitlesIcon } from '@vidstack/react/icons';
 import {
   SettingsRadioGroup,
-  SettingsRowButton,
   SettingsSection,
   SettingsSliderRow,
+  SidePanel,
+  SubmenuTrigger,
   t,
 } from './GlassMenu';
 import { turkishTranslations } from './translations';
@@ -213,7 +214,7 @@ function isLabelList(
   return Array.isArray(values);
 }
 
-/** Radio submenu (e.g. font family, text shadow). */
+/** Radio section expanding inline (e.g. font family, text shadow). */
 function FontRadioControl({
   type,
   label,
@@ -226,6 +227,7 @@ function FontRadioControl({
   // readonly, because the option lists are declared `as const`.
   values: Record<string, string> | readonly string[];
 }) {
+  const [open, setOpen] = useState(false);
   const hint = t(label);
   const options = isLabelList(values)
     ? values.map((entry) => ({ label: entry, value: entry.toLowerCase() }))
@@ -234,16 +236,19 @@ function FontRadioControl({
   const currentLabel = options.find((option) => option.value === current)?.label ?? current;
 
   return (
-    <Menu.Root className="vds-menu">
-      <SettingsRowButton label={hint} hint={currentLabel} />
-      <Menu.Items className="vds-menu-items glass-menu-items vds-quick-submenu">
+    <>
+      <button className="vds-menu-item" aria-expanded={open} onClick={() => setOpen((was) => !was)}>
+        <div className="vds-menu-item-label">{hint}</div>
+        <div className="vds-menu-item-hint">{currentLabel}</div>
+      </button>
+      {open && (
         <SettingsRadioGroup
           value={current}
           options={options}
           onChange={(value) => update(type, value)}
         />
-      </Menu.Items>
-    </Menu.Root>
+      )}
+    </>
   );
 }
 
@@ -328,9 +333,9 @@ export function CaptionStylesMenu() {
   const displayBgLabel = t('Display Background');
 
   return (
-    <Menu.Root className="vds-menu">
-      <SettingsRowButton label={label} Icon={SubtitlesIcon} />
-      <Menu.Items className="vds-menu-items glass-menu-items vds-font-style-items vds-quick-submenu">
+    <>
+      <SubmenuTrigger id="caption-styles" label={label} Icon={SubtitlesIcon} />
+      <SidePanel id="caption-styles">
         <SettingsSection label={fontLabel}>
           <FontRadioControl
             type="fontFamily"
@@ -387,7 +392,7 @@ export function CaptionStylesMenu() {
         <SettingsSection>
           <FontResetItem reset={reset} />
         </SettingsSection>
-      </Menu.Items>
-    </Menu.Root>
+      </SidePanel>
+    </>
   );
 }

@@ -37,7 +37,7 @@ import type { UpscalePreset, ColorFilters, EnhancementStats } from '../hooks/use
 import { FlatSettingsMenu } from './FlatSettingsMenu';
 import { QualityMenu } from './QualityMenu';
 import { SpeedMenu } from './SpeedMenu';
-import { t } from './GlassMenu';
+import { SubmenuProvider, t } from './GlassMenu';
 import { postToParent } from '../hooks/useParentMessages';
 import { turkishTranslations } from './translations';
 import './GlassControls.css';
@@ -76,11 +76,13 @@ function SettingsMenu({
         <SettingsIcon className="vds-icon" />
       </Menu.Button>
       <Menu.Items className="vds-menu-items glass-menu-items" placement="top end" offset={4}>
-        <FlatSettingsMenu announcements={announcements} onAnnouncementsChange={onAnnouncementsChange} />
-        <QualityMenu />
-        <SpeedMenu />
-        <CaptionsMenu />
-        <CaptionStylesMenu />
+        <SubmenuProvider>
+          <FlatSettingsMenu announcements={announcements} onAnnouncementsChange={onAnnouncementsChange} />
+          <QualityMenu />
+          <SpeedMenu />
+          <CaptionsMenu />
+          <CaptionStylesMenu />
+        </SubmenuProvider>
       </Menu.Items>
     </Menu.Root>
   );

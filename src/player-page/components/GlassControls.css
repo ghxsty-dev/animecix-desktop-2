@@ -486,77 +486,67 @@
   overflow-x: hidden;
 }
 
-/* Submenus open BESIDE the root panel (left side, tops aligned) instead
-   of overlaying it. Only one submenu is ever open (Vidstack closes the
-   others), so switching Hız→Kalite just swaps the side panel. Same
-   frosted recipe as the root panel. */
-.glass-menu-items.vds-quick-submenu[data-open] {
-  position: absolute !important;
-  inset: auto !important;
-  transform: none !important;
-  right: calc(100% + 10px) !important;
-  top: 0 !important;
-  left: auto !important;
-  bottom: auto !important;
-  height: auto !important;
+/* Side boxes: separate panels opening LEFT of the root box, tops aligned.
+   Mounted only while their section is active; only one is ever open, so
+   switching sections just swaps the box. Same frosted recipe as the root. */
+.vds-side-submenu {
+  position: absolute;
+  right: calc(100% + 10px);
+  top: 0;
   min-width: 240px;
   max-height: min(60vh, 420px);
   overflow-y: auto;
-  padding: 8px !important;
+  padding: 8px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #fff;
+  background-color: rgba(8, 10, 14, 0.78);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  animation: animecix-submenu-enter 0.2s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 
-/* The open submenu's trigger stays a normal row in the root panel —
-   highlighted so the active section is obvious. (The old overlay CSS in
-   EmbedPlayer.css turned it into a floating header; neutralized here.) */
-.glass-menu-items[data-root] .vds-menu:has(> .vds-menu-items.vds-quick-submenu[data-open]) > .vds-menu-item {
-  position: static !important;
-  width: auto !important;
-  border-bottom: none !important;
-  z-index: auto !important;
-  background: rgba(0, 116, 228, 0.22) !important;
+/* The open section's trigger stays a normal row in the root panel —
+   highlighted so the active section is obvious. */
+.glass-menu-items[data-root] .vds-menu-item[aria-expanded='true'] {
+  background: rgba(0, 116, 228, 0.22);
 }
 
 @media (max-width: 700px) {
   /* Narrow windows: fall back to overlaying the root panel. */
-  .glass-menu-items.vds-quick-submenu[data-open] {
-    right: 0 !important;
-    left: 0 !important;
-    top: 0 !important;
-    height: 100% !important;
+  .vds-side-submenu {
+    right: 0;
+    left: 0;
+    top: 0;
+    height: 100%;
   }
 }
 
-/* Other submenus sit beside the root panel — same frosted recipe so the
-   stack stays consistent. */
-.glass-menu-items[data-submenu] {
-  background-color: rgba(8, 10, 14, 0.78);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border-radius: 12px;
-}
+/* (Kept for reference: Vidstack submenu panels are no longer used —
+   sections render in .vds-side-submenu boxes above.) */
 
 /* Thin blue scrollbar for the settings panels. */
 .glass-menu-items[data-root]::-webkit-scrollbar,
-.glass-menu-items[data-submenu]::-webkit-scrollbar {
+.vds-side-submenu::-webkit-scrollbar {
   width: 5px;
 }
 
 .glass-menu-items[data-root]::-webkit-scrollbar-track,
-.glass-menu-items[data-submenu]::-webkit-scrollbar-track {
+.vds-side-submenu::-webkit-scrollbar-track {
   background: transparent;
 }
 
 .glass-menu-items[data-root]::-webkit-scrollbar-thumb,
-.glass-menu-items[data-submenu]::-webkit-scrollbar-thumb {
+.vds-side-submenu::-webkit-scrollbar-thumb {
   background: #1a9fff;
   border-radius: 999px;
 }
 
-/* Root panel keeps its natural (content) height — submenus sit beside
-   it, so opening one never resizes the panel. The horizontal clip
-   kills the stray scrollbar the submenu trigger rows would draw. */
+/* Root panel keeps its natural (content) height. Overflow stays visible so
+   the absolutely-positioned side boxes (which stick out left of the panel)
+   are never clipped. */
 .glass-menu-items[data-root] {
-  overflow-x: hidden;
+  overflow: visible;
 }
 
 @media (prefers-reduced-motion) {

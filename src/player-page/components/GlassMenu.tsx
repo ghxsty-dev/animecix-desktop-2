@@ -1,6 +1,6 @@
-import { useState } from 'react';
+import { createContext, useCallback, useContext, useEffect, useState } from 'react';
 import { Menu, Slider } from '@vidstack/react';
-import { CheckIcon, ChevronLeftIcon } from '@vidstack/react/icons';
+import { CheckIcon } from '@vidstack/react/icons';
 import { turkishTranslations } from './translations';
 
 /** Typed lookup into the Turkish translation map (replaces useDefaultLayoutWord). */
@@ -8,29 +8,83 @@ export function t(word: keyof typeof turkishTranslations): string {
   return turkishTranslations[word];
 }
 
-interface RowButtonProps {
+/* ── Submenu state (owned by React, not Vidstack) ────────────────
+   The settings panel owns which side box is open; triggers toggle it and
+   anything outside both boxes closes it. This replaces nested Vidstack
+   submenu roots, whose open/close proved unreliable here. */
+
+const SubmenuContext = createContext<{
+  active: string | null;
+  toggle: (id: string) => void;
+  close: () => void;
+}>({ active: null, toggle: () => {}, close: () => {} });
+
+export function useSubmenu() {
+  return useContext(SubmenuContext);
+}
+
+export function SubmenuProvider({ children }: { children: React.ReactNode }) {
+  const [active, setActive] = useState<string | null>(null);
+
+  const toggle = useCallback((id: string) => {
+    setActive((current) => (current === id ? null : id));
+  }, []);
+
+  const close = useCallback(() => setActive(null), []);
+
+  useEffect(() => {
+    if (!active) return;
+    const onPointerDown = (event: PointerEvent) => {
+      const target = event.target as HTMLElement | null;
+      // Inside either box (the side panel lives inside the root panel's DOM)
+      // or on the gear toggle itself: leave it alone.
+      if (target?.closest('.glass-menu-items, .glass-settings .glass-btn, .ve-toggle-btn')) return;
+      close();
+    };
+    document.addEventListener('pointerdown', onPointerDown);
+    return () => document.removeEventListener('pointerdown', onPointerDown);
+  }, [active, close]);
+
+  return (
+    <SubmenuContext.Provider value={{ active, toggle, close }}>
+      {children}
+    </SubmenuContext.Provider>
+  );
+}
+
+interface SubmenuTriggerProps {
+  id: string;
   label: string;
   hint?: string;
   Icon?: React.ComponentType<{ className?: string }>;
-  onBack?: () => void;
 }
 
-/**
- * Submenu trigger row: label + current-value hint + icon. When the submenu is
- * open the same row becomes the panel header with a back chevron (mirrors the
- * old DefaultMenuButton + sticky-header CSS contract in EmbedPlayer.css).
- */
-export function SettingsRowButton({ label, hint, Icon, onBack }: RowButtonProps) {
+/** Row that opens/closes its side box. */
+export function SubmenuTrigger({ id, label, hint, Icon }: SubmenuTriggerProps) {
+  const { active, toggle } = useSubmenu();
+  const open = active === id;
   return (
-    <Menu.Button className="vds-menu-item" aria-label={label}>
-      {onBack ? (
-        <ChevronLeftIcon className="vds-menu-item-icon vds-icon" />
-      ) : (
-        Icon && <Icon className="vds-menu-item-icon vds-icon" />
-      )}
+    <button
+      className="vds-menu-item"
+      aria-expanded={open}
+      aria-label={label}
+      onClick={() => toggle(id)}
+    >
+      {Icon && <Icon className="vds-menu-item-icon vds-icon" />}
       <div className="vds-menu-item-label">{label}</div>
       {hint && <div className="vds-menu-item-hint">{hint}</div>}
-    </Menu.Button>
+    </button>
+  );
+}
+
+/** Side box rendering the active section's options. Mounted only when open. */
+export function SidePanel({ id, children }: { id: string; children: React.ReactNode }) {
+  const { active } = useSubmenu();
+  if (active !== id) return null;
+  return (
+    <div className="vds-menu-items vds-side-submenu" role="menu">
+      {children}
+    </div>
   );
 }
 

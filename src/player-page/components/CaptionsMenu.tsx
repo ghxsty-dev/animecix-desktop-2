@@ -1,6 +1,6 @@
-import { Menu, useCaptionOptions } from '@vidstack/react';
+import { useCaptionOptions } from '@vidstack/react';
 import { ClosedCaptionsIcon } from '@vidstack/react/icons';
-import { SettingsRadioGroup, SettingsRowButton, t } from './GlassMenu';
+import { SettingsRadioGroup, SidePanel, SubmenuTrigger, t } from './GlassMenu';
 
 /**
  * CaptionsMenu -- "Altyazılar" submenu for selecting the active caption track.
@@ -18,9 +18,9 @@ export function CaptionsMenu() {
   if (options.disabled) return null;
 
   return (
-    <Menu.Root className="vds-menu">
-      <SettingsRowButton label={label} hint={hint} Icon={ClosedCaptionsIcon} />
-      <Menu.Items className="vds-menu-items glass-menu-items vds-quick-submenu">
+    <>
+      <SubmenuTrigger id="captions" label={label} hint={hint} Icon={ClosedCaptionsIcon} />
+      <SidePanel id="captions">
         {/* WHY RadioGroup: bare Menu.Radio children have no radioControllerContext
             ancestor, so mount throws "Cannot read properties of undefined (reading 'add')". */}
         <SettingsRadioGroup
@@ -28,7 +28,7 @@ export function CaptionsMenu() {
           options={options.map(({ label: optionLabel, value }) => ({ label: optionLabel, value }))}
           onChange={(value) => options.find((option) => option.value === value)?.select()}
         />
-      </Menu.Items>
-    </Menu.Root>
+      </SidePanel>
+    </>
   );
 }
