@@ -480,17 +480,26 @@
   bottom: 54px;
 }
 
-/* Vidstack animates the panel height on open (submenu swaps stretch through
-   intermediate heights). Snap instead — the enter animation above covers it.
-   The :has pins below only guard the caption-styles exception; the base
-   fixed height above already covers Hız/Kalite. */
+/* Root panel keeps its natural (content) height; only the tall-submenu
+   rule below changes it (animated). The horizontal clip kills the stray
+   scrollbar the sticky submenu header row would draw. */
 .glass-menu-items[data-root] {
-  transition: none;
+  transition: height 0.25s ease;
+  overflow-x: hidden;
 }
 
-/* Submenu panels (Hız / Kalite / Altyazılar / Altyazı Tarzları) overlay the
-   root panel — they need their own opaque-ish background, otherwise the
-   root rows show through behind the options. */
+/* Hız/Kalite submenus only: grow the panel slightly TALLER than the root
+   menu (animated) and hide the root rows behind a near-opaque panel. */
+.glass-menu-items[data-root]:has(.vds-tall-submenu[data-open]) {
+  height: 330px;
+}
+
+.glass-menu-items.vds-tall-submenu[data-open] {
+  background-color: rgba(8, 10, 14, 0.92);
+}
+
+/* Other submenus overlay the root panel — translucent like it, so the
+   frosted stack stays consistent. */
 .glass-menu-items[data-submenu] {
   background-color: rgba(8, 10, 14, 0.62);
   backdrop-filter: blur(16px);
@@ -525,6 +534,7 @@
 @media (prefers-reduced-motion) {
   .glass-menu-items[data-root] {
     animation: none;
+    transition: none;
   }
 }
 
