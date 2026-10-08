@@ -35,13 +35,13 @@
 
 .ve-panel {
   /* Pinned to the player's right edge (same clamp offset as the settings
-     menu in EmbedPlayer.css). Fixed to the iframe viewport because the
-     toggle's own containing block sits ~100px away from the edge. */
+     menu). Fixed to the iframe viewport because the toggle lives in the
+     corner-actions row above the pills. */
   position: fixed;
-  right: clamp(12px, 2vw, 24px);
-  /* Bottom edge must sit at the same level as the settings menu (75px from
-     the bottom — measured: the placement engine hugs the controls row). */
-  bottom: 75px;
+  right: 12px;
+  /* Bottom edge floats just above the right pill so the panel never
+     covers the star toggle that opened it. */
+  bottom: 118px;
   z-index: 999998;
   width: min(340px, calc(100vw - 28px));
   max-height: min(580px, calc(100vh - 92px));

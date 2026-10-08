@@ -38,6 +38,45 @@
   }
 }
 
+/* ── Settings + enhancement live inside the right pill ──────────
+   Their dropdowns open above the pill, pinned to the far right edge
+   (a few px past the pill) with their bottoms level with the pill. */
+
+.glass-pill .ve-menu {
+  display: inline-flex;
+}
+
+.glass-pill .ve-toggle-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 999px;
+  border: none;
+  color: #fff;
+  background: transparent;
+  cursor: pointer;
+  transition: background-color 0.15s ease, transform 0.15s ease;
+}
+
+.glass-pill .ve-toggle-btn:hover {
+  background-color: rgba(255, 255, 255, 0.16);
+}
+
+.glass-pill .ve-toggle-btn:active {
+  transform: scale(0.94);
+}
+
+.glass-pill .ve-toggle-btn .vds-icon {
+  width: 31px;
+  height: 31px;
+}
+
+.glass-pill .ve-toggle-btn.active {
+  color: #4aa3ff;
+}
+
 /* ── Pill groups ───────────────────────────────────────────────
    Dark translucent pills holding flat icon buttons (Figma: one pill for
    play+mute, one for the clock, one for settings+PiP+enhance+fullscreen).
@@ -47,7 +86,7 @@
   display: inline-flex;
   align-items: center;
   gap: 2px;
-  padding: 6px;
+  padding: 4px;
   border-radius: 999px;
   border: 1px solid rgba(255, 255, 255, 0.1);
   background-color: rgba(8, 10, 14, 0.62);
@@ -107,8 +146,8 @@
 }
 
 .glass-btn .vds-icon {
-  width: 28px;
-  height: 28px;
+  width: 31px;
+  height: 31px;
 }
 
 /* ── Button row ──────────────────────────────────────────────── */
@@ -222,15 +261,19 @@
   will-change: bottom;
 }
 
-/* ── Seek slider (full-bleed Figma bar) ───────────────────────── */
+/* ── Seek slider (inset bar with full click surface) ─────────────
+   The bar sits inside the side margins (never touches the window edges,
+   so the thumb stays grabbable at 0%/100%). Fill/progress layers ignore
+   pointer events so every click lands on the slider root itself. */
 
 .glass-time-slider {
   --glass-track-h: 6px;
   position: relative;
   display: block;
-  width: 100%;
-  height: calc(var(--glass-track-h) + 14px);
-  padding-block: 7px;
+  width: auto;
+  margin-inline: clamp(14px, 2.5vw, 28px);
+  height: calc(var(--glass-track-h) + 20px);
+  padding-block: 10px;
   cursor: pointer;
   touch-action: none;
 }
@@ -240,10 +283,9 @@
   display: block;
   width: 100%;
   height: var(--glass-track-h);
-  border-radius: 0;
+  border-radius: 999px;
   background: rgba(255, 255, 255, 0.24);
   box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.45);
-  transition: height 0.15s ease;
 }
 
 /* Track height stays fixed — growing on hover would change the bar's
@@ -257,6 +299,7 @@
   width: var(--slider-fill, 0%);
   background: #1a9fff;
   will-change: width;
+  pointer-events: none;
 }
 
 .glass-slider-progress {
@@ -267,6 +310,7 @@
   width: var(--slider-progress, 0%);
   background: rgba(255, 255, 255, 0.28);
   will-change: width;
+  pointer-events: none;
 }
 
 .glass-slider-thumb {
@@ -377,7 +421,7 @@
 
 .glass-settings .glass-menu-items[data-root][data-placement] {
   left: auto !important;
-  right: clamp(14px, 2.5vw, 28px) !important;
+  right: 12px !important;
 }
 
 /* Vidstack animates the panel height on open (submenu swaps stretch through
@@ -598,43 +642,6 @@
   border-radius: 8px;
   background: transparent;
   cursor: pointer;
-}
-
-/* ── Enhancement toggle joins the right pill (flat like the rest) ─ */
-
-.glass-pill .ve-menu {
-  display: inline-flex;
-}
-
-.glass-pill .ve-toggle-btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 40px;
-  height: 40px;
-  border-radius: 999px;
-  border: none;
-  color: #fff;
-  background: transparent;
-  cursor: pointer;
-  transition: background-color 0.15s ease, transform 0.15s ease;
-}
-
-.glass-pill .ve-toggle-btn:hover {
-  background-color: rgba(255, 255, 255, 0.16);
-}
-
-.glass-pill .ve-toggle-btn:active {
-  transform: scale(0.94);
-}
-
-.glass-pill .ve-toggle-btn .vds-icon {
-  width: 28px;
-  height: 28px;
-}
-
-.glass-pill .ve-toggle-btn.active {
-  color: #4aa3ff;
 }
 
 /* ── Buffering spinner ───────────────────────────────────────── */

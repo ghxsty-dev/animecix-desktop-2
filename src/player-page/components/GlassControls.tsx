@@ -13,7 +13,6 @@ import {
   Time,
   TimeSlider,
   VolumeSlider,
-  useMediaContext,
   useMediaPlayer,
   useMediaState,
 } from '@vidstack/react';
