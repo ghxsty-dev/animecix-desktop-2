@@ -295,21 +295,19 @@
 .glass-volume-track {
   position: relative;
   display: block;
-  width: 100%;
-  height: 6px;
-  top: 50%;
-  margin-top: -3px;
   border-radius: 999px;
   background: rgba(255, 255, 255, 0.22);
 }
 
-/* Same inset as the seek line (half a thumb each side): the thumb travels
-   the line box, so at 0%/100% the dot sits on the line ends instead of
-   overshooting into the root padding. */
+/* Box geometry lives ONLY on the direct child (the track element): the
+   fill carries this class too for its rounded surface, and any top/margin
+   here would shift the blue line off the gray line. */
 
 .glass-volume-slider > .glass-volume-track {
   width: auto;
-  margin-inline: 6.5px;
+  height: 6px;
+  top: 50%;
+  margin: -3px 6.5px 0;
 }
 
 .glass-volume-fill {
