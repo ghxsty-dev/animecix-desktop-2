@@ -6,7 +6,8 @@ import type { MediaPlayerInstance } from '@vidstack/react';
 // preference survives both iframe reloads (episode switch) and same-document
 // src changes (changeVideo bridge message).
 const QUALITY_KEY = 'tau-video-quality';
-const MAX_RESTORE_ATTEMPTS = 50;
+// Long enough to cover the player mounting after the skip-marker fetch.
+const MAX_RESTORE_ATTEMPTS = 300;
 const RESTORE_POLL_INTERVAL_MS = 100;
 
 export interface QualityLike {
@@ -92,68 +93,48 @@ export function findBestQualityMatch<T extends QualityLike>(
 }
 
 /**
- * Persists the player's manual quality selection across episode switches.
+ * Re-applies the viewer's quality preference whenever an episode loads.
  *
- * WHY (PLAY-05): Vidstack's built-in storage restores quality only on media
- * ready and is unreliable across iframe reloads, so the selection resets to
- * "Otomatik" (Auto) when the user changes episodes. This hook writes the
- * preference on every user-triggered quality change and re-applies it after
- * new sources load.
+ * WHY (PLAY-05): Vidstack's built-in quality storage is switched off (see
+ * PlayerStorage), so this is the only place a stored quality comes back.
  *
- * Distinguishing user intent from list resets: a new video source rebuilds the
- * quality list and fires 'change' with current=null and 'auto-change' with
- * detail=false — neither of those clears the preference. Only a real "Otomatik"
- * selection (auto-change with detail=true) or a manual pick (change with a
- * selected quality while auto is off) modifies the stored preference.
+ * Saving happens in QualityMenu, on the viewer's own pick only. Listening to
+ * the quality list here used to save every change, including useQualityGuard
+ * reverting a slow switch and Vidstack's own restores, so one failed 1080p
+ * switch left the preference stuck on 480p.
  */
 export function useQualityPersistence(
   playerRef: RefObject<MediaPlayerInstance | null>,
   sourcesSignature: string | null
 ) {
-  // Save manual selections; clear when the user picks "Otomatik"
-  useEffect(() => {
-    const player = playerRef.current;
-    if (!player) return;
-
-    function onQualityChange() {
-      if (player.qualities.auto) return;
-      const selected = player.qualities.selected;
-      if (selected) {
-        saveQuality({
-          width: selected.width,
-          height: selected.height,
-          bitrate: selected.bitrate,
-        });
-      }
-    }
-
-    function onAutoChange() {
-      if (player.qualities.auto) saveQuality(null);
-    }
-
-    player.qualities.addEventListener('change', onQualityChange);
-    player.qualities.addEventListener('auto-change', onAutoChange);
-
-    return () => {
-      player.qualities.removeEventListener('change', onQualityChange);
-      player.qualities.removeEventListener('auto-change', onAutoChange);
-    };
-  }, [playerRef]);
-
   // Re-apply the saved preference whenever new sources load. Qualities are
   // populated asynchronously (manifest/source elements), so poll briefly.
   useEffect(() => {
     if (!sourcesSignature) return;
 
+    const sourceUrls = new Set(sourcesSignature.split('|'));
     let attempts = 0;
     let timer: ReturnType<typeof setInterval> | null = null;
 
     const tryRestore = (): boolean => {
+      // useVideoData sets `data` before it clears `loading` (that waits on the
+      // skip-marker fetch), so the player is usually not mounted yet when this
+      // first runs. Giving up here meant the restore never happened on a fresh
+      // load, and Vidstack's size-based auto pick — 480p in the iframe — won.
       const player = playerRef.current;
-      if (!player) return true;
+      if (!player) return false;
 
       const qualities = player.qualities.toArray();
       if (qualities.length === 0) return false;
+
+      // On a same-document episode switch the list can still hold the previous
+      // episode's files for a tick; selecting one of those would be lost when
+      // they are swapped out. HLS levels carry no src and are taken as-is.
+      const isCurrentList = qualities.every((quality) => {
+        const src = (quality as { src?: unknown }).src;
+        return typeof src !== 'string' || sourceUrls.has(src);
+      });
+      if (!isCurrentList) return false;
 
       const saved = loadSavedQuality();
       if (saved) {

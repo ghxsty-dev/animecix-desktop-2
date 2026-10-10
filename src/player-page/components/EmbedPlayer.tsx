@@ -22,6 +22,7 @@ import { useQualityGuard } from '../hooks/useQualityGuard';
 import { usePlaybackRecovery } from '../hooks/usePlaybackRecovery';
 import { useKeepAwake } from '../hooks/useKeepAwake';
 import { readPreferredQualityHeight } from './preferredQuality';
+import { PlayerStorage } from './playerStorage';
 import type { Video, SkipMeta } from '../types';
 import { useColorExtraction } from '../hooks/useColorExtraction';
 import './EmbedPlayer.css';
@@ -33,6 +34,9 @@ const regionNamesInTurkish = new Intl.DisplayNames(['tr'], {
 const isIOS =
   /iPad|iPhone|iPod/.test(navigator.userAgent) ||
   (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+
+// One per page: Vidstack rebuilds its storage wiring when this identity changes.
+const playerStorage = new PlayerStorage();
 
 // Vidstack otherwise pulls hls.js from jsDelivr at runtime (`hls.js@^1.5.0`),
 // which in a packaged app under tau-player:// means reaching the network for a
@@ -325,8 +329,8 @@ export function EmbedPlayer() {
       Math.abs(entry.height - viewportHeight);
 
     // A stored quality outranks the viewport guess: that is the one
-    // useQualityPersistence restores just after canPlay, and the restore is
-    // what aborts the first fetch when it lands on a different source.
+    // useQualityPersistence restores once the sources are in, and the restore
+    // is what aborts the first fetch when it lands on a different source.
     const preferredHeight = readPreferredQualityHeight();
 
     return [...entries].sort((a, b) => {
@@ -460,7 +464,7 @@ export function EmbedPlayer() {
         autoPlay
         playsInline
         crossOrigin={isOffline ? undefined : 'anonymous'}
-        storage="tau-video"
+        storage={playerStorage}
         duration={data.duration}
         load="eager"
         // Vidstack defaults to "metadata", which parks the element on an empty
