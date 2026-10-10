@@ -180,7 +180,7 @@
 /* Skip button */
 .skip {
   position: absolute;
-  bottom: clamp(84px, 12vh, 118px);
+  bottom: clamp(94px, calc(12vh + 10px), 128px);
   right: clamp(16px, 3vw, 32px);
   z-index: 999999;
   display: inline-flex;
