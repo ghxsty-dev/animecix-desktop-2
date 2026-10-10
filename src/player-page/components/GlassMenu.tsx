@@ -33,15 +33,32 @@ export function SubmenuProvider({ children }: { children: React.ReactNode }) {
 
   const close = useCallback(() => setActive(null), []);
 
+  // The side box lives portaled OUTSIDE Menu.Items, so the root's own
+  // display:none cannot hide it. Close it on every root-menu close — gear
+  // presses are already covered by the pointerdown guard below, but
+  // keyboard (Escape) and programmatic closes never produce one. Vidstack
+  // dispatches open/close CustomEvents on the Menu.Root host (.glass-settings).
+  useEffect(() => {
+    const root = document.querySelector('.glass-settings');
+    if (!root) return;
+    const onMenuClose = () => close();
+    root.addEventListener('close', onMenuClose);
+    return () => root.removeEventListener('close', onMenuClose);
+  }, [close]);
+
   useEffect(() => {
     if (!active) return;
     const onPointerDown = (event: PointerEvent) => {
       const target = event.target as HTMLElement | null;
-      // Inside either box — the side panel is PORTALED into
+      // Inside either box only — the side panel is PORTALED into
       // .glass-menu-dock (it left the root panel so its blur can sample
-      // the video), so the root panel's own class no longer covers it;
-      // or on the gear/enhancement toggle itself: leave it alone.
-      if (target?.closest('.glass-menu-items, .glass-menu-dock, .glass-settings .glass-btn, .ve-toggle-btn')) return;
+      // the video), so the root panel's own class no longer covers it.
+      // The gear/star pill buttons are DELIBERATELY not exempt: a gear
+      // press toggles the root menu closed, and a star press opens the
+      // enhancement panel — in both cases an open side box must go away
+      // too (it lives outside Menu.Items, so the root's display:none
+      // would otherwise leave it floating orphaned/overlapping).
+      if (target?.closest('.glass-menu-items, .glass-menu-dock')) return;
       close();
     };
     document.addEventListener('pointerdown', onPointerDown);

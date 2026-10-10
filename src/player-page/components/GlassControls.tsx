@@ -1,4 +1,4 @@
-import { useEffect, type ReactNode } from 'react';
+import { useEffect, useRef, type ReactNode } from 'react';
 import {
   Captions,
   Controls,
@@ -296,24 +296,31 @@ function SeekGestures() {
   const { remote } = useMediaContext();
   const duration = useMediaState('duration');
   const fullscreen = useMediaState('fullscreen');
+  // Snapshot at press start: the star panel closes itself on pointerdown
+  // (its own outside handler), i.e. BEFORE pointerup — so a pointerup-time
+  // query would miss it and the closing press would also toggle playback.
+  const swallowRef = useRef(false);
+
+  const onPointerDown = (event: React.PointerEvent<HTMLDivElement>) => {
+    const doc = event.currentTarget.ownerDocument;
+    swallowRef.current = !!doc.querySelector(
+      '.glass-menu-items[data-root][aria-hidden="false"], .ve-panel'
+    );
+  };
 
   const onPointerUp = (event: React.PointerEvent<HTMLDivElement>) => {
     const target = event.target as HTMLElement | null;
     if (target?.closest('button, [role="slider"], input, a, .glass-menu-items, .glass-menu-dock, .ve-panel')) return;
-    // Swallow the toggle when this press is closing an open menu or panel:
-    // vidstack closes the root menu on window pointerup, which runs AFTER
-    // this React handler, so an open menu is still reported open here (gear
-    // Menu.Button carries aria-expanded, the star panel only mounts when
-    // open). Without this, one click both closes the menu and pauses video.
+    // Swallow the toggle when this press closed an open menu or panel.
+    // Vidstack closes the root menu on window pointerup, which runs AFTER
+    // this React handler, so the press still counted at pointerdown time.
+    // Without this, one click both closes the menu and pauses the video.
     // NOTE: vidstack does NOT put data-open on Menu.Root — verified live
-    // (only data-root there), so check the gear button + items instead.
-    const doc = event.currentTarget.ownerDocument;
-    if (
-      doc.querySelector(
-        '.glass-pill [aria-expanded="true"], .glass-menu-items[data-root][aria-hidden="false"], .ve-panel'
-      )
-    )
+    // (only data-root there), so check the items' aria-hidden instead.
+    if (swallowRef.current) {
+      swallowRef.current = false;
       return;
+    }
     if (!player) return;
     if (player.state.paused) player.play().catch(() => {});
     else player.pause();
@@ -335,7 +342,7 @@ function SeekGestures() {
   };
 
   return (
-    <div className="vds-gestures" onPointerUp={onPointerUp} onDoubleClick={onDoubleClick} />
+    <div className="vds-gestures" onPointerDown={onPointerDown} onPointerUp={onPointerUp} onDoubleClick={onDoubleClick} />
   );
 }
 

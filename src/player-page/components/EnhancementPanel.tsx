@@ -31,6 +31,39 @@ function stopPlayerEvent(event: SyntheticEvent): void {
   event.stopPropagation();
 }
 
+// Set while we synthetically press the gear button (see closeSettingsMenu
+// below): our own outside-press handler must ignore that press, otherwise
+// it would toggle this panel shut again before it ever opens. Synchronous
+// dispatchEvent runs the handler inline, so a plain module flag suffices.
+let suppressOutsideClose = false;
+
+/**
+ * Closes the vidstack settings menu (root + portaled side submenu) when the
+ * enhancement panel is about to open. The menu cannot close itself here:
+ * vidstack's Menu host stops pointerup propagation for presses inside
+ * Menu.Root but outside the menu content (where this toggle lives), so the
+ * window outside-press that normally closes it never fires. A synthetic
+ * gear press reuses the proven toggle path instead of internal APIs; the
+ * root's close event clears the side submenu (see SubmenuProvider), and
+ * the pointerdown also trips its document guard as backup. No-op when the
+ * root menu is already closed.
+ */
+function closeSettingsMenu(anchor: HTMLElement | null): void {
+  const root = anchor?.closest('.glass-settings');
+  const items = root?.querySelector('.glass-menu-items[data-root]');
+  const gear = root?.querySelector('.glass-pill button[aria-haspopup="menu"]');
+  if (!root || !items || !(gear instanceof HTMLElement)) return;
+  if (items.getAttribute('aria-hidden') !== 'false') return;
+  const init = { bubbles: true, cancelable: true, view: window, button: 0 };
+  suppressOutsideClose = true;
+  try {
+    gear.dispatchEvent(new PointerEvent('pointerdown', init));
+    gear.dispatchEvent(new PointerEvent('pointerup', init));
+  } finally {
+    suppressOutsideClose = false;
+  }
+}
+
 function Slider({
   label,
   value,
@@ -85,6 +118,7 @@ export function EnhancementPanel({
     if (!panelOpen) return;
 
     const closeOnOutsidePointerDown = (event: PointerEvent) => {
+      if (suppressOutsideClose) return;
       const target = event.target as Node;
       if (!menuRef.current?.contains(target) && !panelRef.current?.contains(target)) {
         onPanelToggle();
@@ -143,6 +177,10 @@ export function EnhancementPanel({
         onPointerDown={stopPlayerEvent}
         onClick={(e) => {
           stopPlayerEvent(e);
+          // Mutual exclusivity: opening this panel closes the settings
+          // menu (root + side submenu), otherwise both pile up at the same
+          // bottom-right anchor.
+          if (!panelOpen) closeSettingsMenu(menuRef.current);
           onPanelToggle();
         }}
         title="Video Kalite Artırma"
