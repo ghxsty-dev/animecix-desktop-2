@@ -172,6 +172,25 @@ function GlassPlayButton() {
   );
 }
 
+/** Big round resume button over the video while paused (blurred glass).
+ * Mounted only while paused/ended, so it never intercepts surface presses
+ * during playback. A plain <button> is excluded from the SeekGestures
+ * toggle, and PlayButton itself resumes exactly once. */
+function GlassCenterPlay() {
+  const paused = useMediaState('paused');
+  const ended = useMediaState('ended');
+  if (!paused && !ended) return null;
+  return (
+    <PlayButton className="glass-center-play" aria-label={ended ? t('Replay') : t('Play')}>
+      {ended ? (
+        <ReplayIcon className="vds-icon" />
+      ) : (
+        <PlayIcon className="vds-icon glass-center-play-icon" />
+      )}
+    </PlayButton>
+  );
+}
+
 function GlassMuteButton() {
   const muted = useMediaState('muted');
   const volume = useMediaState('volume');
@@ -280,7 +299,21 @@ function SeekGestures() {
 
   const onPointerUp = (event: React.PointerEvent<HTMLDivElement>) => {
     const target = event.target as HTMLElement | null;
-    if (target?.closest('button, [role="slider"], input, a, .glass-menu-items, .ve-panel')) return;
+    if (target?.closest('button, [role="slider"], input, a, .glass-menu-items, .glass-menu-dock, .ve-panel')) return;
+    // Swallow the toggle when this press is closing an open menu or panel:
+    // vidstack closes the root menu on window pointerup, which runs AFTER
+    // this React handler, so an open menu is still reported open here (gear
+    // Menu.Button carries aria-expanded, the star panel only mounts when
+    // open). Without this, one click both closes the menu and pauses video.
+    // NOTE: vidstack does NOT put data-open on Menu.Root — verified live
+    // (only data-root there), so check the gear button + items instead.
+    const doc = event.currentTarget.ownerDocument;
+    if (
+      doc.querySelector(
+        '.glass-pill [aria-expanded="true"], .glass-menu-items[data-root][aria-hidden="false"], .ve-panel'
+      )
+    )
+      return;
     if (!player) return;
     if (player.state.paused) player.play().catch(() => {});
     else player.pause();
@@ -313,6 +346,7 @@ export function GlassControls({ hasNext, announcements, onAnnouncementsChange, e
   return (
     <>
       <SeekGestures />
+      <GlassCenterPlay />
 
       <Captions className="vds-captions" />
 
@@ -325,6 +359,19 @@ export function GlassControls({ hasNext, announcements, onAnnouncementsChange, e
       {announcements && <MediaAnnouncer translations={turkishTranslations} />}
 
       <Controls.Root className="glass-controls">
+        {!live && (
+          <TimeSlider.Root className="glass-time-slider" aria-label={t('Seek')}>
+            <TimeSlider.Track className="glass-slider-track">
+              <TimeSlider.TrackFill className="glass-slider-fill glass-slider-track" />
+              <TimeSlider.Progress className="glass-slider-progress glass-slider-track" />
+            </TimeSlider.Track>
+            <TimeSlider.Thumb className="glass-slider-thumb" />
+            <TimeSlider.Preview className="glass-slider-preview">
+              <TimeSlider.Value className="glass-slider-value" />
+            </TimeSlider.Preview>
+          </TimeSlider.Root>
+        )}
+
         <Controls.Group className="glass-button-row">
           {!live && (
             <div className="glass-pill glass-play-pill" role="group" aria-label="Oynatma">
@@ -377,19 +424,6 @@ export function GlassControls({ hasNext, announcements, onAnnouncementsChange, e
             <GlassFullscreenButton />
           </SettingsMenu>
         </Controls.Group>
-
-        {!live && (
-          <TimeSlider.Root className="glass-time-slider" aria-label={t('Seek')}>
-            <TimeSlider.Track className="glass-slider-track">
-              <TimeSlider.TrackFill className="glass-slider-fill glass-slider-track" />
-              <TimeSlider.Progress className="glass-slider-progress glass-slider-track" />
-            </TimeSlider.Track>
-            <TimeSlider.Thumb className="glass-slider-thumb" />
-            <TimeSlider.Preview className="glass-slider-preview">
-              <TimeSlider.Value className="glass-slider-value" />
-            </TimeSlider.Preview>
-          </TimeSlider.Root>
-        )}
       </Controls.Root>
     </>
   );
