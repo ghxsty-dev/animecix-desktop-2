@@ -375,8 +375,8 @@ export function GlassControls({ hasNext, announcements, onAnnouncementsChange, e
             <TimeSlider.Track className="glass-slider-track">
               <TimeSlider.TrackFill className="glass-slider-fill glass-slider-track" />
               <TimeSlider.Progress className="glass-slider-progress glass-slider-track" />
+              <TimeSlider.Thumb className="glass-slider-thumb" />
             </TimeSlider.Track>
-            <TimeSlider.Thumb className="glass-slider-thumb" />
             <TimeSlider.Preview className="glass-slider-preview">
               <TimeSlider.Value className="glass-slider-value" />
             </TimeSlider.Preview>
@@ -388,16 +388,25 @@ export function GlassControls({ hasNext, announcements, onAnnouncementsChange, e
             <div className="glass-pill glass-play-pill" role="group" aria-label="Oynatma">
               <GlassPlayButton />
 
-              <div className="glass-volume">
+              <div
+                className="glass-volume"
+                onMouseLeave={(event) => {
+                  // A pointer press focuses the slider (kept focusable for
+                  // keyboard users), which would hold :focus-within and keep
+                  // the pill stretched after the mouse leaves — drop that
+                  // focus so the pill shrinks back. Pure keyboard focus
+                  // never fires mouseleave, so it stays open while tabbing.
+                  const focused = event.currentTarget.querySelector(':focus');
+                  if (focused instanceof HTMLElement) focused.blur();
+                }}
+              >
                 <GlassMuteButton />
-                <div className="glass-volume-popup">
-                  <VolumeSlider.Root className="glass-volume-slider" orientation="vertical" aria-label={t('Volume')}>
-                    <VolumeSlider.Track className="glass-mini-track">
-                      <VolumeSlider.TrackFill className="glass-mini-fill glass-mini-track" />
-                    </VolumeSlider.Track>
-                    <VolumeSlider.Thumb className="glass-mini-thumb" />
-                  </VolumeSlider.Root>
-                </div>
+                <VolumeSlider.Root className="glass-volume-slider" aria-label={t('Volume')}>
+                  <VolumeSlider.Track className="glass-volume-track">
+                    <VolumeSlider.TrackFill className="glass-volume-fill glass-volume-track" />
+                    <VolumeSlider.Thumb className="glass-volume-thumb" />
+                  </VolumeSlider.Track>
+                </VolumeSlider.Root>
               </div>
             </div>
           )}

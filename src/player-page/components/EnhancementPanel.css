@@ -43,7 +43,8 @@
      block, `fixed` would resolve against the viewport. */
   position: absolute;
   right: 0;
-  bottom: 54px;
+  /* Same lift as the settings dock (clears the seek slider). */
+  bottom: 92px;
   z-index: 999998;
   width: min(340px, calc(100vw - 28px));
   max-height: min(580px, calc(100vh - 92px));

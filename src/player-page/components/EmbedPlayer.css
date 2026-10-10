@@ -177,12 +177,14 @@
      0    0   4px rgba(0, 0, 0, 0.6) !important;
 }
 
-/* Skip button */
+/* Skip button (stays BELOW the settings/enhancement menus: they live in
+   the controls stacking context at z-index 20, so anything lower still
+   clears the video/captions layers). */
 .skip {
   position: absolute;
   bottom: clamp(94px, calc(12vh + 10px), 128px);
   right: clamp(16px, 3vw, 32px);
-  z-index: 999999;
+  z-index: 18;
   display: inline-flex;
   align-items: center;
   justify-content: center;

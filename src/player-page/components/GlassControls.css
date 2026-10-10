@@ -10,7 +10,7 @@
   z-index: 20;
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 10px;
   padding: 0 0 clamp(10px, 1.8vh, 18px);
   /* Gentle scrim confined to the bar area so the art stays visible. */
   background: linear-gradient(
@@ -256,81 +256,85 @@
   height: 48px;
 }
 
-/* ── Volume hover popup ──────────────────────────────────────── */
+/* ── Volume inline expander ──────────────────────────────────
+   No popup: hovering the volume group stretches the pill rightward and
+   reveals a horizontal slider; leaving shrinks it back. Clicking the
+   speaker icon itself toggles mute (MuteButton default). The slider
+   root carries horizontal padding so the thumb's travel (plus its
+   half-width overhang at 0%/100%) never leaves the pill — the old
+   vertical popup let the dot leak outside its box. Thumb transform is
+   safe here: the thumb has no positioned descendants. */
 
 .glass-volume {
   position: relative;
   display: inline-flex;
-}
-
-.glass-volume-popup {
-  position: absolute;
-  bottom: calc(100% + 10px);
-  left: 50%;
-  transform: translateX(-50%) translateY(6px);
-  padding: 12px 10px;
-  border-radius: 999px;
-  border: 1px solid rgba(255, 255, 255, 0.14);
-  background-color: rgba(10, 12, 16, 0.55);
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
-  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.5);
-  opacity: 0;
-  pointer-events: none;
-  transition: opacity 0.18s ease, transform 0.18s ease;
-}
-
-.glass-volume:hover .glass-volume-popup,
-.glass-volume:focus-within .glass-volume-popup {
-  opacity: 1;
-  transform: translateX(-50%) translateY(0);
-  pointer-events: auto;
+  align-items: center;
 }
 
 .glass-volume-slider {
-  --glass-mini-h: 96px;
-  display: block;
-  height: var(--glass-mini-h);
-  width: 24px;
-  cursor: pointer;
-  touch-action: none;
-}
-
-.glass-mini-track {
   position: relative;
   display: block;
-  width: 6px;
-  height: 100%;
-  margin: 0 auto;
+  width: 0;
+  height: 40px;
+  padding-inline: 0;
+  opacity: 0;
+  visibility: hidden;
+  cursor: pointer;
+  touch-action: none;
+  transition: width 0.25s ease, opacity 0.2s ease, padding 0.25s ease, visibility 0.25s;
+}
+
+.glass-volume:hover .glass-volume-slider,
+.glass-volume:focus-within .glass-volume-slider {
+  width: 78px;
+  padding-inline: 8px;
+  opacity: 1;
+  visibility: visible;
+}
+
+.glass-volume-track {
+  position: relative;
+  display: block;
+  width: 100%;
+  height: 6px;
+  top: 50%;
+  margin-top: -3px;
   border-radius: 999px;
   background: rgba(255, 255, 255, 0.22);
-  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.4);
 }
 
-.glass-mini-fill {
+/* Same inset as the seek line (half a thumb each side): the thumb travels
+   the line box, so at 0%/100% the dot sits on the line ends instead of
+   overshooting into the root padding. */
+
+.glass-volume-slider > .glass-volume-track {
+  width: auto;
+  margin-inline: 6.5px;
+}
+
+.glass-volume-fill {
   position: absolute;
-  bottom: 0;
+  top: 0;
   left: 0;
-  right: 0;
-  height: var(--slider-fill, 0%);
-  background: linear-gradient(to top, #0074e4, #4aa3ff);
-  box-shadow: 0 0 8px rgba(0, 116, 228, 0.7);
-  will-change: height;
+  bottom: 0;
+  width: var(--slider-fill, 0%);
+  background: #1a9fff;
+  will-change: width;
+  pointer-events: none;
 }
 
-.glass-mini-thumb {
+.glass-volume-thumb {
   position: absolute;
-  left: 50%;
-  bottom: var(--slider-fill, 0%);
-  width: 14px;
-  height: 14px;
+  top: 50%;
+  left: var(--slider-fill, 0%);
+  width: 13px;
+  height: 13px;
   border-radius: 999px;
-  background: #fff;
+  background: #1a9fff;
   border: none;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.5);
-  transform: translate(-50%, 50%);
+  transform: translate(-50%, -50%);
   pointer-events: none;
-  will-change: bottom;
+  will-change: left;
 }
 
 /* ── Seek slider (inset bar with full click surface) ─────────────
@@ -357,7 +361,16 @@
   height: var(--glass-track-h);
   border-radius: 999px;
   background: rgba(255, 255, 255, 0.24);
-  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.45);
+}
+
+/* Inset the visible line by half a thumb on each side, and let the thumb
+   (now a child of the track) travel the line box itself: dot centre lands
+   exactly on the line ends at 0%/100% instead of overshooting past them.
+   Fill/progress % resolve against the same box, so all three stay glued. */
+
+.glass-time-slider > .glass-slider-track {
+  width: auto;
+  margin-inline: 7.5px;
 }
 
 /* Track height stays fixed — growing on hover would change the bar's
@@ -478,7 +491,9 @@
 .glass-settings .glass-menu-dock {
   position: absolute;
   right: 0;
-  bottom: 54px;
+  /* Clears the seek slider too (slider 26px + 10px gap + 8px breathing
+     room above the 48px pill): the menu used to overlap the bar. */
+  bottom: 92px;
 }
 
 /* Menu inside the dock: the DOCK owns the geometry (see above); defeat
