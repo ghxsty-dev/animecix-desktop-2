@@ -349,6 +349,10 @@ function SeekGestures() {
 export function GlassControls({ hasNext, announcements, onAnnouncementsChange, enhancement }: GlassControlsProps) {
   useKeyboardShortcuts();
   const live = useMediaState('live');
+  // React-driven fullscreen hook for the bar lift: vidstack also reflects
+  // data-fullscreen on an ancestor, but a state class keeps the styling
+  // trigger inside our own tree.
+  const fullscreen = useMediaState('fullscreen');
 
   return (
     <>
@@ -365,7 +369,7 @@ export function GlassControls({ hasNext, announcements, onAnnouncementsChange, e
 
       {announcements && <MediaAnnouncer translations={turkishTranslations} />}
 
-      <Controls.Root className="glass-controls">
+      <Controls.Root className={fullscreen ? 'glass-controls glass-is-fullscreen' : 'glass-controls'}>
         {!live && (
           <TimeSlider.Root className="glass-time-slider" aria-label={t('Seek')}>
             <TimeSlider.Track className="glass-slider-track">

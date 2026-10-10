@@ -48,6 +48,20 @@
   }
 }
 
+/* ── Fullscreen: lift bar content off the screen edge ─────────
+   Windowed, the iframe edges give the pills visual room; in fullscreen
+   the bar reads as glued to the display edge. The lift goes on the last
+   child's margin — NOT on the bar's `bottom` — so the bar box (and its
+   scrim background) stays glued to the viewport edge while slider +
+   pills ride up. (Padding declarations on this bar do not take effect
+   in fullscreen in this Chromium build — measured 0px despite matching
+   rules — while offset and margin do.) Base row margin is 3px, so 8px
+   here = the same 3px + 5px extra in fullscreen. */
+
+.glass-controls.glass-is-fullscreen .glass-button-row {
+  margin-bottom: 8px;
+}
+
 /* ── Settings + enhancement live inside the right pill ──────────
    Their dropdowns open above the pill, pinned to the far right edge
    (a few px past the pill) with their bottoms level with the pill. */
@@ -213,6 +227,8 @@
   align-items: center;
   gap: 10px;
   padding-inline: clamp(14px, 2.5vw, 28px);
+  /* Pill + title row sits 3px above the bar's bottom padding. */
+  margin-bottom: 3px;
 }
 
 .glass-spacer {
