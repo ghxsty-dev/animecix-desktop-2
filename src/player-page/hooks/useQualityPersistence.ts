@@ -93,6 +93,26 @@ export function findBestQualityMatch<T extends QualityLike>(
 }
 
 /**
+ * The tallest quality in the list — the default every episode opens at while
+ * the viewer has no pick on record. Vidstack's own pick is scored against the
+ * rendered player size and lands on 720p in this window; the viewer asked for
+ * the best available quality (1080p on sources that have it) instead. The
+ * pick is deliberately not saved, so it stays a default and a later manual
+ * selection still wins on the next episode.
+ */
+export function findTallestQuality<T extends QualityLike>(
+  qualities: readonly T[]
+): T | null {
+  let top: T | null = null;
+  for (const quality of qualities) {
+    if (top === null || (quality.height ?? 0) > (top.height ?? 0)) {
+      top = quality;
+    }
+  }
+  return top;
+}
+
+/**
  * Re-applies the viewer's quality preference whenever an episode loads.
  *
  * WHY (PLAY-05): Vidstack's built-in quality storage is switched off (see
@@ -137,10 +157,13 @@ export function useQualityPersistence(
       if (!isCurrentList) return false;
 
       const saved = loadSavedQuality();
-      if (saved) {
-        const best = findBestQualityMatch(qualities, saved);
-        if (best) best.selected = true;
-      }
+      // No pick on record: open the episode at the top of the ladder (1080p
+      // where available) rather than leaving Vidstack's size-based auto to
+      // settle on 720p.
+      const best = saved
+        ? findBestQualityMatch(qualities, saved)
+        : findTallestQuality(qualities);
+      if (best) best.selected = true;
       return true;
     };
 

@@ -328,7 +328,7 @@ export function EmbedPlayer() {
       Math.abs(entry.width - viewportWidth) +
       Math.abs(entry.height - viewportHeight);
 
-    // A stored quality outranks the viewport guess: that is the one
+    // A stored quality outranks everything else: that is the one
     // useQualityPersistence restores once the sources are in, and the restore
     // is what aborts the first fetch when it lands on a different source.
     const preferredHeight = readPreferredQualityHeight();
@@ -338,6 +338,11 @@ export function EmbedPlayer() {
         const aPreferred = a.height === preferredHeight ? 0 : 1;
         const bPreferred = b.height === preferredHeight ? 0 : 1;
         if (aPreferred !== bPreferred) return aPreferred - bPreferred;
+      } else if (a.height !== b.height) {
+        // No stored pick: the default is the top of the ladder (see
+        // findTallestQuality), so lead with the tallest file and the first
+        // fetch is the default quality itself — no abort, no swap.
+        return b.height - a.height;
       }
       return distance(a) - distance(b);
     });
