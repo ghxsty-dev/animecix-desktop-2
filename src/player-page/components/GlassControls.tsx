@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, type ReactNode } from 'react';
 import {
   Captions,
   Controls,
@@ -61,28 +61,58 @@ interface GlassControlsProps {
 /**
  * Settings (gear) pill button + dropdown panel: flat toggles, Kalite, Hız,
  * Altyazılar, Altyazı Tarzları.
+ *
+ * WHY the pill sits INSIDE Menu.Root (and not the other way round): the
+ * pill's `backdrop-filter` makes it a backdrop root, and a backdrop root
+ * also clips what its descendants' own `backdrop-filter` can sample. With
+ * Menu.Items nested inside the pill, the menu could only sample the pill's
+ * own painting (nothing) and rendered a dead, sharp backdrop — measured at
+ * a 0.00% pixel delta. Rendering the menu as a SIBLING of the pill puts it
+ * outside that root so it samples the video again (58% of its pixels
+ * change with the blur toggled), while the pill keeps its frosted look.
+ *
+ * WHY the dock wrapper around Menu.Items: the root menu box itself carries
+ * a `backdrop-filter`, which would be the backdrop root for the side
+ * submenus (Kalite / Hız / Altyazılar) rendered inside it — their own blur
+ * sampled nothing but the menu's dark background (0.00% delta). The dock
+ * is a filter-free sibling of the menu box; SidePanel portals its panel
+ * into the dock, so the panel sits right next to the menu with no backdrop
+ * root in between and samples the video again, while the CSS geometry
+ * (right: calc(100% + 10), top/bottom: 0) resolves against the dock box,
+ * which equals the menu box.
+ *
+ * `children` are the pill's other controls (PiP, enhancement, fullscreen);
+ * they stay inside the pill for the shared capsule look but outside the
+ * menu subtree.
  */
 function SettingsMenu({
   announcements,
   onAnnouncementsChange,
+  children,
 }: {
   announcements: boolean;
   onAnnouncementsChange: (enabled: boolean) => void;
+  children?: ReactNode;
 }) {
   return (
     <Menu.Root className="glass-settings">
-      <Menu.Button className="glass-btn" aria-label={t('Settings')} title={t('Settings')}>
-        <SettingsIcon className="vds-icon" />
-      </Menu.Button>
-      <Menu.Items className="vds-menu-items glass-menu-items" placement="top end" offset={4}>
-        <SubmenuProvider>
-          <FlatSettingsMenu announcements={announcements} onAnnouncementsChange={onAnnouncementsChange} />
-          <QualityMenu />
-          <SpeedMenu />
-          <CaptionsMenu />
-          <CaptionStylesMenu />
-        </SubmenuProvider>
-      </Menu.Items>
+      <div className="glass-pill" role="group" aria-label={t('Settings')}>
+        <Menu.Button className="glass-btn" aria-label={t('Settings')} title={t('Settings')}>
+          <SettingsIcon className="vds-icon" />
+        </Menu.Button>
+        {children}
+      </div>
+      <div className="glass-menu-dock">
+        <Menu.Items className="vds-menu-items glass-menu-items" placement="top end" offset={4}>
+          <SubmenuProvider>
+            <FlatSettingsMenu announcements={announcements} onAnnouncementsChange={onAnnouncementsChange} />
+            <QualityMenu />
+            <SpeedMenu />
+            <CaptionsMenu />
+            <CaptionStylesMenu />
+          </SubmenuProvider>
+        </Menu.Items>
+      </div>
     </Menu.Root>
   );
 }
@@ -332,8 +362,7 @@ export function GlassControls({ hasNext, announcements, onAnnouncementsChange, e
 
           {!live && hasNext && <NextEpisodePill />}
 
-          <div className="glass-pill" role="group" aria-label={t('Settings')}>
-            <SettingsMenu announcements={announcements} onAnnouncementsChange={onAnnouncementsChange} />
+          <SettingsMenu announcements={announcements} onAnnouncementsChange={onAnnouncementsChange}>
             <GlassPipButton />
             <EnhancementPanel
               preset={enhancement.preset}
@@ -346,7 +375,7 @@ export function GlassControls({ hasNext, announcements, onAnnouncementsChange, e
               onPanelToggle={enhancement.onPanelToggle}
             />
             <GlassFullscreenButton />
-          </div>
+          </SettingsMenu>
         </Controls.Group>
 
         {!live && (

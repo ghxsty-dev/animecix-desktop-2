@@ -414,12 +414,25 @@
 
 /* ── Settings menu panel ─────────────────────────────────────── */
 
+/* `display: inline-flex` MUST beat Vidstack's own stylesheet, which forces
+   `display: contents` on Menu.Root. With `contents` the element generates
+   no box, so it cannot be the containing block for the absolutely
+   positioned menu below — right/bottom would fall through to the viewport
+   and drop the panel over the pill. The Root wraps only the pill capsule,
+   so the box is exactly the pill's, keeping the old geometry. */
 .glass-settings {
   position: relative;
-  display: inline-flex;
+  display: inline-flex !important;
 }
 
-/* Panel: byte-identical recipe to the pills. */
+/* Panel: byte-identical recipe to the pills. The backdrop-filter MUST stay
+   on THIS box and the box must have no backdrop-filtered ANCESTOR (the
+   pill would be one — measured 0.00% delta inside it; see SettingsMenu
+   docs). A ::before variant (frosted layer on a negative-z pseudo) was
+   tried here and measured inert in this Chromium build — do not reintroduce
+   it. The box's own backdrop-filter, in turn, is a backdrop root for the
+   side submenus rendered inside it, which is why SidePanel portals them
+   into .glass-menu-dock instead (see GlassMenu.tsx). */
 .glass-menu-items[data-root] {
   min-width: 300px;
   max-height: min(60vh, 420px);
@@ -439,19 +452,32 @@
   height: auto;
 }
 
-.glass-settings .glass-menu-items[data-root] {
-  /* Take over geometry from the placement engine (which anchors to the
-     gear button and ends up overlapping the pill).
-     NOTE: the pill's backdrop-filter makes it the containing block for
-     fixed descendants, so right/bottom resolve against the PILL box, not
-     the viewport: right edge flush with the pill, bottom 4px above the
-     pill top (pill = 40px buttons + 2×4px padding). */
-  position: fixed !important;
-  left: auto !important;
-  top: auto !important;
-  transform: none !important;
+/* Geometry wrapper for the menu and its portaled side submenus. Sits
+   OUTSIDE the pill (the pill is a backdrop root) and is itself filter-free,
+   so every backdrop-filtered child samples the video again. Its box wraps
+   the menu exactly (shrink-to-fit around the static menu), so the side
+   submenus' right: calc(100% + 10) keeps pointing at the menu's left edge
+   and top/bottom: 0 keeps them stretched to the menu's height — same
+   geometry as when they were children of the menu box. */
+.glass-settings .glass-menu-dock {
+  position: absolute;
   right: 0;
   bottom: 54px;
+}
+
+/* Menu inside the dock: the DOCK owns the geometry (see above); defeat
+   vidstack's placement engine, which otherwise sets inline absolute
+   coordinates against the wrong ancestor and overlaps the pill. Must be
+   static (not absolute/fixed): absolute would re-anchor it to the dock's
+   shrink-to-fit box and push it off, fixed would resolve against the
+   viewport. transform: none kills the placement engine's inline transform. */
+.glass-settings .glass-menu-items[data-root] {
+  position: static !important;
+  left: auto !important;
+  top: auto !important;
+  right: auto !important;
+  bottom: auto !important;
+  transform: none !important;
 }
 
 /* Root panel keeps its natural (content) height. The horizontal clip
@@ -539,7 +565,7 @@
 }
 
 /* Menu rows (shared by settings root + submenus). */
-.glass-menu-items .vds-menu-item {
+.vds-menu-items .vds-menu-item {
   display: flex;
   align-items: center;
   gap: 10px;
@@ -557,32 +583,32 @@
   font-family: inherit;
 }
 
-.glass-menu-items .vds-menu-item:hover {
+.vds-menu-items .vds-menu-item:hover {
   background: rgba(255, 255, 255, 0.1);
 }
 
-.glass-menu-items .vds-menu-item-icon {
+.vds-menu-items .vds-menu-item-icon {
   width: 20px;
   height: 20px;
   flex: 0 0 auto;
   color: rgba(255, 255, 255, 0.8);
 }
 
-.glass-menu-items .vds-menu-item-label {
+.vds-menu-items .vds-menu-item-label {
   flex: 1;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
 }
 
-.glass-menu-items .vds-menu-item-hint {
+.vds-menu-items .vds-menu-item-hint {
   color: rgba(255, 255, 255, 0.55);
   font-size: 12.5px;
   font-weight: 550;
 }
 
 /* Radio rows: check appears only on the selected option. */
-.glass-menu-items .vds-radio {
+.vds-menu-items .vds-radio {
   display: flex;
   align-items: center;
   gap: 10px;
@@ -593,39 +619,39 @@
   cursor: pointer;
 }
 
-.glass-menu-items .vds-radio:hover {
+.vds-menu-items .vds-radio:hover {
   background: rgba(255, 255, 255, 0.1);
 }
 
-.glass-menu-items .vds-radio .vds-icon {
+.vds-menu-items .vds-radio .vds-icon {
   width: 18px;
   height: 18px;
   color: #4aa3ff;
   opacity: 0;
 }
 
-.glass-menu-items .vds-radio[aria-checked='true'] .vds-icon,
-.glass-menu-items .vds-radio[data-checked] .vds-icon {
+.vds-menu-items .vds-radio[aria-checked='true'] .vds-icon,
+.vds-menu-items .vds-radio[data-checked] .vds-icon {
   opacity: 1;
 }
 
-.glass-menu-items .vds-radio[aria-checked='true'],
-.glass-menu-items .vds-radio[data-checked] {
+.vds-menu-items .vds-radio[aria-checked='true'],
+.vds-menu-items .vds-radio[data-checked] {
   background: rgba(0, 116, 228, 0.22);
 }
 
 /* Sections inside Altyazı Tarzları. */
-.glass-menu-items .vds-menu-section {
+.vds-menu-items .vds-menu-section {
   padding: 2px 0 6px;
 }
 
-.glass-menu-items .vds-menu-section + .vds-menu-section {
+.vds-menu-items .vds-menu-section + .vds-menu-section {
   border-top: 1px solid rgba(255, 255, 255, 0.1);
   margin-top: 4px;
   padding-top: 8px;
 }
 
-.glass-menu-items .vds-menu-section-label {
+.vds-menu-items .vds-menu-section-label {
   padding: 6px 10px 2px;
   font-size: 11px;
   font-weight: 700;
@@ -670,7 +696,7 @@
 }
 
 /* Mini slider rows (font size / opacity). */
-.glass-menu-items .vds-slider-item {
+.vds-menu-items .vds-slider-item {
   flex-wrap: wrap;
   row-gap: 2px;
 }

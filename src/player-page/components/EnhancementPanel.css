@@ -34,11 +34,14 @@
 }
 
 .ve-panel {
-  /* NOTE: this fixed panel resolves against the right pill, whose
-     backdrop-filter traps fixed descendants (same as the settings menu).
-     Right edge flush with the pill, bottom 4px above the pill top —
-     level with the settings menu. */
-  position: fixed;
+  /* Anchored to Menu.Root (.glass-settings, position: relative, box =
+     the pill capsule): right edge flush with the pill, bottom level with
+     the settings menu. `absolute`, NOT `fixed`, because the panel is
+     PORTALED out of the pill (the pill's backdrop-filter would otherwise
+     be its backdrop root and its blur would render dead — see the
+     portal call in EnhancementPanel.tsx); without the pill as containing
+     block, `fixed` would resolve against the viewport. */
+  position: absolute;
   right: 0;
   bottom: 54px;
   z-index: 999998;

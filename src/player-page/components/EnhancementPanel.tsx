@@ -1,4 +1,5 @@
 import { useEffect, useRef, type SyntheticEvent } from 'react';
+import { createPortal } from 'react-dom';
 import type { UpscalePreset, ColorFilters, EnhancementStats } from '../hooks/useVideoEnhancement';
 import './EnhancementPanel.css';
 
@@ -78,12 +79,14 @@ export function EnhancementPanel({
   onPanelToggle,
 }: Props) {
   const menuRef = useRef<HTMLDivElement>(null);
+  const panelRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     if (!panelOpen) return;
 
     const closeOnOutsidePointerDown = (event: PointerEvent) => {
-      if (!menuRef.current?.contains(event.target as Node)) {
+      const target = event.target as Node;
+      if (!menuRef.current?.contains(target) && !panelRef.current?.contains(target)) {
         onPanelToggle();
       }
     };
@@ -100,7 +103,9 @@ export function EnhancementPanel({
   useEffect(() => {
     if (!panelOpen) return;
 
-    const panel = menuRef.current?.querySelector<HTMLDivElement>('.ve-panel');
+    // The panel is portaled to Menu.Root (outside the pill), so it cannot
+    // be queried from menuRef anymore — use its own ref.
+    const panel = panelRef.current;
     if (!panel) return;
 
     const fitPanel = () => {
@@ -124,6 +129,13 @@ export function EnhancementPanel({
     };
   }, [panelOpen, isActive, stats]);
 
+  // The panel must render OUTSIDE the pill: an ancestor with
+  // backdrop-filter (the pill) is a backdrop root, and a backdrop root
+  // also clips what descendants can sample — the panel's own blur would
+  // render dead inside it. Menu.Root is positioned, sits outside the pill
+  // and keeps the same pill-relative geometry (see .ve-panel CSS).
+  const portalTarget = panelOpen ? menuRef.current?.closest('.glass-settings') : null;
+
   return (
     <div className="ve-menu" ref={menuRef}>
       <button
@@ -141,9 +153,10 @@ export function EnhancementPanel({
         </svg>
       </button>
 
-      {panelOpen && (
+      {panelOpen && portalTarget && createPortal(
         <div
           className="ve-panel"
+          ref={panelRef}
           role="menu"          onPointerDown={stopPlayerEvent}
           onMouseDown={stopPlayerEvent}
           onTouchStart={stopPlayerEvent}
@@ -234,7 +247,7 @@ export function EnhancementPanel({
             </button>
           </div>
         </div>
-      )}
+      , portalTarget)}
     </div>
   );
 }

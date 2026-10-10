@@ -1,4 +1,5 @@
 import { createContext, useCallback, useContext, useEffect, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { Menu, Slider } from '@vidstack/react';
 import { CheckIcon } from '@vidstack/react/icons';
 import { turkishTranslations } from './translations';
@@ -36,9 +37,11 @@ export function SubmenuProvider({ children }: { children: React.ReactNode }) {
     if (!active) return;
     const onPointerDown = (event: PointerEvent) => {
       const target = event.target as HTMLElement | null;
-      // Inside either box (the side panel lives inside the root panel's DOM)
-      // or on the gear toggle itself: leave it alone.
-      if (target?.closest('.glass-menu-items, .glass-settings .glass-btn, .ve-toggle-btn')) return;
+      // Inside either box — the side panel is PORTALED into
+      // .glass-menu-dock (it left the root panel so its blur can sample
+      // the video), so the root panel's own class no longer covers it;
+      // or on the gear/enhancement toggle itself: leave it alone.
+      if (target?.closest('.glass-menu-items, .glass-menu-dock, .glass-settings .glass-btn, .ve-toggle-btn')) return;
       close();
     };
     document.addEventListener('pointerdown', onPointerDown);
@@ -79,15 +82,26 @@ export function SubmenuTrigger({ id, label, hint, Icon }: SubmenuTriggerProps) {
 
 /** Side box rendering the active section's options. Mounted only when open.
  * `lift` extends the box upward past the root top (px) while the bottom
- * stays glued to the root bottom. */
+ * stays glued to the root bottom.
+ *
+ * The box is PORTALED into .glass-menu-dock, a filter-free sibling of the
+ * root menu box: the root box's own backdrop-filter would otherwise be this
+ * panel's backdrop root, and the panel's blur would sample nothing but the
+ * menu's dark background (measured 0.00% pixel delta when toggled). The
+ * dock's box equals the menu's box, so the positioning CSS (right:
+ * calc(100% + 10px), top/bottom: 0) resolves exactly as it did when the
+ * panel was a child of the menu — the portal only changes WHO the backdrop
+ * root is, not the geometry. */
 export function SidePanel({ id, lift = 0, children }: { id: string; lift?: number; children: React.ReactNode }) {
   const { active } = useSubmenu();
   if (active !== id) return null;
-  return (
+  const box = (
     <div className="vds-menu-items vds-side-submenu" role="menu" style={lift ? { top: -lift } : undefined}>
       {children}
     </div>
   );
+  const dock = typeof document !== 'undefined' ? document.querySelector<HTMLElement>('.glass-menu-dock') : null;
+  return dock ? createPortal(box, dock) : box;
 }
 
 interface RadioGroupProps {
