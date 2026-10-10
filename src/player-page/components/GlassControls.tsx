@@ -191,6 +191,19 @@ function GlassCenterPlay() {
   );
 }
 
+/** Live volume readout at the right end of the expanding volume slider.
+ * Decorative (the slider itself carries the aria label); muted reads 0. */
+function GlassVolumeValue() {
+  const volume = useMediaState('volume');
+  const muted = useMediaState('muted');
+  const pct = muted ? 0 : Math.round(volume * 100);
+  return (
+    <div className="glass-volume-value" aria-hidden="true">
+      <span>{pct}%</span>
+    </div>
+  );
+}
+
 function GlassMuteButton() {
   const muted = useMediaState('muted');
   const volume = useMediaState('volume');
@@ -407,6 +420,7 @@ export function GlassControls({ hasNext, announcements, onAnnouncementsChange, e
                     <VolumeSlider.Thumb className="glass-volume-thumb" />
                   </VolumeSlider.Track>
                 </VolumeSlider.Root>
+                <GlassVolumeValue />
               </div>
             </div>
           )}

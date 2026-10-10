@@ -23,7 +23,7 @@
   transform: translateY(8px);
   transition: opacity 0.28s ease, transform 0.28s ease;
   pointer-events: none;
-  font-family: Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-family: Inter, "Helvetica Neue", sans-serif;
 }
 
 [data-controls] .glass-controls,
@@ -286,8 +286,41 @@
 
 .glass-volume:hover .glass-volume-slider,
 .glass-volume:focus-within .glass-volume-slider {
-  width: 78px;
+  width: 110px;
   padding-inline: 8px;
+  opacity: 1;
+  visibility: visible;
+}
+
+/* Live % readout at the slider's right end. Collapses with the slider
+   (max-width, not width, so it animates); fixed inner width in ch keeps
+   the pill from jittering as the digits change. */
+
+.glass-volume-value {
+  max-width: 0;
+  margin-right: 0;
+  opacity: 0;
+  visibility: hidden;
+  overflow: hidden;
+  white-space: nowrap;
+  color: rgba(255, 255, 255, 0.92);
+  font-size: 11.5px;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  user-select: none;
+  transition: max-width 0.25s ease, opacity 0.2s ease, margin 0.25s ease, visibility 0.25s;
+}
+
+.glass-volume-value > span {
+  display: inline-block;
+  width: 4.5ch;
+  text-align: right;
+}
+
+.glass-volume:hover .glass-volume-value,
+.glass-volume:focus-within .glass-volume-value {
+  max-width: 52px;
+  margin-right: 6px;
   opacity: 1;
   visibility: visible;
 }
@@ -471,7 +504,7 @@
   background-color: rgba(8, 10, 14, 0.62);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
-  font-family: Inter, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-family: Inter, "Helvetica Neue", sans-serif;
   animation: animecix-menu-enter 0.24s cubic-bezier(0.22, 1, 0.36, 1) both;
   /* Auto height like the old menu: the panel hugs its rows, no empty space
      at the bottom. Submenus overlay absolutely (inset 0), so opening one
